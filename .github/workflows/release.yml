@@ -33,7 +33,7 @@ jobs:
       - name: Build macOS
         run: pnpm run build:mac
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false   # skip code signing in CI
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
@@ -66,8 +66,6 @@ jobs:
 
       - name: Build Windows
         run: pnpm run build:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -101,8 +99,6 @@ jobs:
 
       - name: Build Linux
         run: pnpm run build:linux
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
