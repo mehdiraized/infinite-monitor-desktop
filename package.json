@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Desktop application for Infinite Monitor – AI-powered dashboard builder",
   "main": "electron/main.js",
-  "author": "Infinite Monitor",
+  "author": {
+    "name": "Infinite Monitor",
+    "email": "hi@infinitemonitor.app",
+    "url": "https://github.com/mehdiraized/infinite-monitor-desktop"
+  },
   "license": "MIT",
   "packageManager": "pnpm@10.32.1",
   "scripts": {
