@@ -2,6 +2,7 @@
 
 const { Menu, shell, app } = require('electron');
 const { openSettingsWindow } = require('./settings-window');
+const { checkForUpdates } = require('./updater');
 
 /**
  * Builds and sets the application menu.
@@ -20,6 +21,10 @@ function buildMenu({ isDevMode, mainWindow }) {
             label: app.name,
             submenu: [
               { role: 'about' },
+              {
+                label: 'Check for Updates…',
+                click() { checkForUpdates(mainWindow, true); },
+              },
               { type: 'separator' },
               {
                 label: 'Settings…',
@@ -57,15 +62,30 @@ function buildMenu({ isDevMode, mainWindow }) {
         { type: 'separator' },
         {
           label: 'Add Widget',
-          accelerator: 'CmdOrCtrl+Shift+W',
-          click() {
-            if (mainWindow) {
-              // Click the Add button in the web app header to open the dropdown
-              mainWindow.webContents.executeJavaScript(
-                `document.querySelector('[data-add-menu-trigger]')?.click()`
-              );
-            }
-          },
+          submenu: [
+            {
+              label: 'Widget',
+              accelerator: 'CmdOrCtrl+Shift+W',
+              click() {
+                if (mainWindow) {
+                  mainWindow.webContents.executeJavaScript(
+                    `document.querySelector('[data-add-menu-trigger]')?.click()`
+                  );
+                }
+              },
+            },
+            {
+              label: 'Text',
+              accelerator: 'CmdOrCtrl+Shift+T',
+              click() {
+                if (mainWindow) {
+                  mainWindow.webContents.executeJavaScript(
+                    `document.querySelector('[data-add-text-trigger]')?.click()`
+                  );
+                }
+              },
+            },
+          ],
         },
         { type: 'separator' },
         {
@@ -147,6 +167,21 @@ function buildMenu({ isDevMode, mainWindow }) {
     {
       role: 'help',
       submenu: [
+        {
+          label: 'Show Intro…',
+          click() {
+            if (mainWindow) {
+              mainWindow.webContents.executeJavaScript(
+                `window.dispatchEvent(new CustomEvent('im-show-onboarding'))`
+              );
+            }
+          },
+        },
+        {
+          label: 'Check for Updates…',
+          click() { checkForUpdates(mainWindow, true); },
+        },
+        { type: 'separator' },
         {
           label: 'Infinite Monitor on GitHub',
           click() {

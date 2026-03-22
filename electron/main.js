@@ -21,6 +21,7 @@ const net = require('net');
 const fs = require('fs');
 
 const { buildMenu } = require('./menu');
+const { scheduleUpdateCheck } = require('./updater');
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -701,6 +702,7 @@ app.whenReady().then(async () => {
     await waitForServer(appPort, 90_000, serverAbort.signal);
     serverAbort = null;
     loadApp();
+    scheduleUpdateCheck(mainWindow);
   } catch (err) {
     serverAbort = null;
     console.error('[main] startup failed:', err);

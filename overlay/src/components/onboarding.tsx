@@ -301,6 +301,22 @@ export function Onboarding() {
     }
   }, []);
 
+  // Allow the Electron menu ("Show Intro…") to re-trigger the onboarding
+  // without a full page reload, by dispatching a custom window event.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    function handleShowOnboarding() {
+      setSlide(0);
+      setLeaving(false);
+      setDir(1);
+      setVisible(true);
+    }
+    window.addEventListener("im-show-onboarding", handleShowOnboarding);
+    return () => {
+      window.removeEventListener("im-show-onboarding", handleShowOnboarding);
+    };
+  }, []);
+
   const dismiss = useCallback(() => {
     localStorage.setItem(ONBOARDING_KEY, "1");
     setVisible(false);
