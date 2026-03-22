@@ -1,0 +1,84 @@
+# electron-builder configuration
+# https://www.electron.build/configuration/configuration
+
+appId: com.infinitemonitor.desktop
+productName: Infinite Monitor
+copyright: Copyright © 2024 Infinite Monitor
+
+directories:
+  output: dist
+  buildResources: assets
+
+# Files included in the app package (Electron shell only – no web-build here,
+# that goes in extraResources so it lands at process.resourcesPath)
+files:
+  - electron/**/*
+  - package.json
+  - "!node_modules/**/*"     # handled separately by electron-builder
+  - "!web-build/**/*"        # goes into extraResources, not the asar
+  - "!scripts/**/*"
+  - "!dist/**/*"
+
+# The bundled Next.js standalone server is placed at:
+#   <app>/Contents/Resources/web-server/   (macOS)
+#   <app>/resources/web-server/            (Windows/Linux)
+# Accessible in the main process as:
+#   path.join(process.resourcesPath, 'web-server')
+extraResources:
+  - from: web-build
+    to: web-server
+    filter:
+      - "**/*"
+
+# Compression: balances install size vs packaging speed
+compression: maximum
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+mac:
+  category: public.app-category.productivity
+  icon: assets/icon.icns
+  # Require notarisation for distribution; remove for local builds
+  # notarize: true
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+
+dmg:
+  title: "Infinite Monitor ${version}"
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+win:
+  icon: assets/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+
+# ── Linux ─────────────────────────────────────────────────────────────────────
+linux:
+  icon: assets/icon.png
+  category: Utility
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+
+# ── Auto-update (configure when you have a release server) ───────────────────
+# publish:
+#   provider: github
+#   owner: homanp
+#   repo: infinite-monitor-desktop

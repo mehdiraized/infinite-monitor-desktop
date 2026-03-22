@@ -1,0 +1,6 @@
+node_modules/
+dist/
+web-build/
+assets/icon.icns
+assets/icon.ico
+# Keep assets/icon.png (generated placeholder or your real PNG)
