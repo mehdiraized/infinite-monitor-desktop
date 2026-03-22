@@ -30,7 +30,7 @@ const path = require('path');
 const fs = require('fs');
 
 const ROOT = path.resolve(__dirname, '..');
-const WEB_DIR = path.resolve(ROOT, '..', 'web');
+const WEB_DIR = path.join(ROOT, 'web');
 const STANDALONE_DIR = path.join(WEB_DIR, '.next', 'standalone');
 const STATIC_SRC = path.join(WEB_DIR, '.next', 'static');
 const PUBLIC_SRC = path.join(WEB_DIR, 'public');
@@ -59,7 +59,7 @@ if (!fs.existsSync(WEB_DIR)) {
 }
 
 // Step 1: build
-run('npm run build', WEB_DIR);
+run('pnpm run build', WEB_DIR);
 
 // Verify standalone output was produced
 if (!fs.existsSync(STANDALONE_DIR)) {

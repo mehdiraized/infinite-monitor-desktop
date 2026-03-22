@@ -3,7 +3,7 @@
 
 appId: com.infinitemonitor.desktop
 productName: Infinite Monitor
-copyright: Copyright © 2024 Infinite Monitor
+copyright: Copyright © 2025 Infinite Monitor
 
 directories:
   output: dist
@@ -36,7 +36,7 @@ compression: maximum
 # ── macOS ─────────────────────────────────────────────────────────────────────
 mac:
   category: public.app-category.productivity
-  icon: assets/icon.icns
+  icon: assets/icon.png
   # Require notarisation for distribution; remove for local builds
   # notarize: true
   target:
@@ -54,7 +54,7 @@ dmg:
 
 # ── Windows ───────────────────────────────────────────────────────────────────
 win:
-  icon: assets/icon.ico
+  icon: assets/icon.png
   target:
     - target: nsis
       arch:
@@ -80,5 +80,5 @@ linux:
 # ── Auto-update (configure when you have a release server) ───────────────────
 # publish:
 #   provider: github
-#   owner: homanp
+#   owner: mehdiraized
 #   repo: infinite-monitor-desktop

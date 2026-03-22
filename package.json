@@ -5,19 +5,40 @@
   "main": "electron/main.js",
   "author": "Infinite Monitor",
   "license": "MIT",
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
+    "setup": "node scripts/setup.js",
+    "upstream": "node scripts/update-web.js",
+    "release": "node scripts/release.js",
+    "predev": "node scripts/apply-overlay.js",
     "dev": "cross-env NODE_ENV=development electron .",
+    "build": "node scripts/apply-overlay.js && pnpm run generate-icons && pnpm run prepare-web && electron-builder",
+    "build:mac": "node scripts/apply-overlay.js && pnpm run generate-icons && pnpm run prepare-web && electron-builder --mac",
+    "build:win": "node scripts/apply-overlay.js && pnpm run generate-icons && pnpm run prepare-web && electron-builder --win",
+    "build:linux": "node scripts/apply-overlay.js && pnpm run generate-icons && pnpm run prepare-web && electron-builder --linux",
     "generate-icons": "node scripts/generate-icons.js",
     "prepare-web": "node scripts/prepare-web.js",
-    "build": "npm run generate-icons && npm run prepare-web && electron-builder",
-    "build:mac": "npm run generate-icons && npm run prepare-web && electron-builder --mac",
-    "build:win": "npm run generate-icons && npm run prepare-web && electron-builder --win",
-    "build:linux": "npm run generate-icons && npm run prepare-web && electron-builder --linux",
+    "apply-overlay": "node scripts/apply-overlay.js",
+    "reset-overlay": "node scripts/reset-overlay.js",
     "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "electron": "^33.4.0",
     "electron-builder": "^25.1.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@mongodb-js/zstd",
+      "better-sqlite3",
+      "esbuild",
+      "isolated-vm",
+      "msw",
+      "node-liblzma",
+      "sharp",
+      "unrs-resolver",
+      "es5-ext",
+      "electron"
+    ]
   }
 }

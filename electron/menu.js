@@ -1,6 +1,7 @@
 'use strict';
 
 const { Menu, shell, app } = require('electron');
+const { openSettingsWindow } = require('./settings-window');
 
 /**
  * Builds and sets the application menu.
@@ -19,6 +20,12 @@ function buildMenu({ isDevMode, mainWindow }) {
             label: app.name,
             submenu: [
               { role: 'about' },
+              { type: 'separator' },
+              {
+                label: 'Settings…',
+                accelerator: 'CmdOrCtrl+,',
+                click() { openSettingsWindow(); },
+              },
               { type: 'separator' },
               { role: 'services' },
               { type: 'separator' },
@@ -41,12 +48,30 @@ function buildMenu({ isDevMode, mainWindow }) {
           accelerator: 'CmdOrCtrl+N',
           click() {
             if (mainWindow) {
-              // Navigate to root which creates a new dashboard in the web app
               mainWindow.webContents.loadURL(
                 mainWindow.webContents.getURL().split('?')[0].split('#')[0]
               );
             }
           },
+        },
+        { type: 'separator' },
+        {
+          label: 'Add Widget',
+          accelerator: 'CmdOrCtrl+Shift+W',
+          click() {
+            if (mainWindow) {
+              // Click the Add button in the web app header to open the dropdown
+              mainWindow.webContents.executeJavaScript(
+                `document.querySelector('[data-add-menu-trigger]')?.click()`
+              );
+            }
+          },
+        },
+        { type: 'separator' },
+        {
+          label: 'Settings',
+          accelerator: 'CmdOrCtrl+,',
+          click() { openSettingsWindow(); },
         },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' },
@@ -125,13 +150,13 @@ function buildMenu({ isDevMode, mainWindow }) {
         {
           label: 'Infinite Monitor on GitHub',
           click() {
-            shell.openExternal('https://github.com/homanp/infinite-monitor');
+            shell.openExternal('https://github.com/mehdiraized/infinite-monitor-desktop');
           },
         },
         {
           label: 'Report an Issue',
           click() {
-            shell.openExternal('https://github.com/homanp/infinite-monitor/issues');
+            shell.openExternal('https://github.com/mehdiraized/infinite-monitor-desktop/issues');
           },
         },
         { type: 'separator' },

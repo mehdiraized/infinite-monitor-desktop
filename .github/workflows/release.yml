@@ -1,0 +1,147 @@
+name: Release
+
+# Triggered when npm run release pushes a version tag (e.g. v1.2.3)
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write   # needed to create GitHub Releases
+
+jobs:
+  # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout desktop repo + web submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build macOS
+        run: pnpm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-builds
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          if-no-files-found: error
+
+  # ── Windows build (produces .exe NSIS installer for x64) ──────────────────
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout desktop repo + web submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Windows
+        run: pnpm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-builds
+          path: dist/*.exe
+          if-no-files-found: error
+
+  # ── Linux build (produces .AppImage + .deb for x64) ───────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout desktop repo + web submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - name: Build Linux
+        run: pnpm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error
+
+  # ── Create GitHub Release with all artifacts ──────────────────────────────
+  release:
+    needs: [build-mac, build-win, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (for release notes)
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+
+      - name: List artifacts
+        run: ls -lh dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}  # e.g. v1.0.0-beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
