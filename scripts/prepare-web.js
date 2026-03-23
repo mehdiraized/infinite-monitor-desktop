@@ -112,7 +112,16 @@ if (!fs.existsSync(WEB_DIR)) {
 }
 
 // Step 1: build
-run("pnpm run build", WEB_DIR);
+// Use 'npx next build' instead of 'pnpm run build' to skip the "postbuild"
+// hook (prebuild-template.mjs). That hook pre-caches widget templates by running
+// npm install + npx shadcn, which is unnecessary for the packaged desktop app
+// (the template is rebuilt at runtime) and frequently times out on CI.
+try {
+	run("npx --no-install next build", WEB_DIR);
+} catch (err) {
+	console.error("\nERROR: 'next build' failed. Check the output above for details.");
+	process.exit(1);
+}
 
 // Verify standalone output was produced
 if (!fs.existsSync(STANDALONE_DIR)) {
@@ -242,7 +251,9 @@ function countSymlinks(dir) {
 		const fullPath = path.join(dir, entry.name);
 		if (entry.isSymbolicLink()) {
 			remaining++;
-			console.error(`  SYMLINK STILL PRESENT: ${path.relative(WEB_BUILD_DIR, fullPath)}`);
+			console.error(
+				`  SYMLINK STILL PRESENT: ${path.relative(WEB_BUILD_DIR, fullPath)}`,
+			);
 		} else if (entry.isDirectory()) {
 			countSymlinks(fullPath);
 		}
@@ -250,7 +261,9 @@ function countSymlinks(dir) {
 }
 countSymlinks(WEB_BUILD_DIR);
 if (remaining > 0) {
-	console.error(`\nERROR: ${remaining} symlink(s) remain in web-build. The build would be broken.`);
+	console.error(
+		`\nERROR: ${remaining} symlink(s) remain in web-build. The build would be broken.`,
+	);
 	process.exit(1);
 }
 console.log("  ✓ Verified: zero symlinks in web-build.");

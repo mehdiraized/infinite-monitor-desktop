@@ -13,6 +13,9 @@ jobs:
   # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
   build-mac:
     runs-on: macos-latest
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
@@ -26,6 +29,27 @@ jobs:
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -47,6 +71,9 @@ jobs:
   # ── Windows build (produces .exe NSIS installer for x64) ──────────────────
   build-win:
     runs-on: windows-latest
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
@@ -60,6 +87,27 @@ jobs:
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -77,6 +125,9 @@ jobs:
   # ── Linux build (produces .AppImage + .deb for x64) ───────────────────────
   build-linux:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
@@ -90,6 +141,27 @@ jobs:
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
