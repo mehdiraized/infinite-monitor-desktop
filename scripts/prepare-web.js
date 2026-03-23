@@ -54,6 +54,54 @@ function copyDir(src, dest) {
 	);
 }
 
+/**
+ * Walk a directory tree and replace every symlink with a real copy of its target.
+ * This is a safety net: fs.cpSync({ dereference: true }) should handle symlinks,
+ * but on some CI environments (GitHub Actions + pnpm) absolute symlinks survive
+ * the copy. This function catches any that slipped through.
+ *
+ * @param {string} dir  Directory to walk
+ * @returns {number}    Number of symlinks resolved
+ */
+function resolveAllSymlinks(dir) {
+	let count = 0;
+	let entries;
+	try {
+		entries = fs.readdirSync(dir, { withFileTypes: true });
+	} catch (_) {
+		return count;
+	}
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+		if (entry.isSymbolicLink()) {
+			let realTarget;
+			try {
+				realTarget = fs.realpathSync(fullPath);
+			} catch (_) {
+				// Broken symlink — remove it entirely
+				fs.rmSync(fullPath, { force: true });
+				count++;
+				continue;
+			}
+			// Remove the symlink
+			fs.rmSync(fullPath, { force: true, recursive: true });
+			// Copy the real content in its place
+			const stat = fs.statSync(realTarget);
+			if (stat.isDirectory()) {
+				fs.cpSync(realTarget, fullPath, { recursive: true, dereference: true });
+				// Recurse into the freshly copied directory (it may contain more symlinks)
+				count += resolveAllSymlinks(fullPath);
+			} else {
+				fs.copyFileSync(realTarget, fullPath);
+			}
+			count++;
+		} else if (entry.isDirectory()) {
+			count += resolveAllSymlinks(fullPath);
+		}
+	}
+	return count;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 console.log("\n━━━ prepare-web: building upstream Next.js app ━━━\n");
@@ -172,6 +220,40 @@ for (const pkg of patchPackages) {
 		console.log(`  patched: ${pkg} (copied full package for dynamic requires)`);
 	}
 }
+
+// Step 4: resolve ALL remaining symlinks (safety net)
+// fs.cpSync({ dereference: true }) should handle symlinks, but on some CI
+// environments (GitHub Actions + pnpm) absolute symlinks survive the copy.
+// Walk the whole tree and replace every last symlink with a real copy.
+console.log("\n  Resolving remaining symlinks...");
+const resolved = resolveAllSymlinks(WEB_BUILD_DIR);
+console.log(`  ${resolved} symlink(s) resolved.`);
+
+// Step 5: verify — fail the build if any symlinks remain
+let remaining = 0;
+function countSymlinks(dir) {
+	let entries;
+	try {
+		entries = fs.readdirSync(dir, { withFileTypes: true });
+	} catch (_) {
+		return;
+	}
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+		if (entry.isSymbolicLink()) {
+			remaining++;
+			console.error(`  SYMLINK STILL PRESENT: ${path.relative(WEB_BUILD_DIR, fullPath)}`);
+		} else if (entry.isDirectory()) {
+			countSymlinks(fullPath);
+		}
+	}
+}
+countSymlinks(WEB_BUILD_DIR);
+if (remaining > 0) {
+	console.error(`\nERROR: ${remaining} symlink(s) remain in web-build. The build would be broken.`);
+	process.exit(1);
+}
+console.log("  ✓ Verified: zero symlinks in web-build.");
 
 console.log("\n━━━ prepare-web: done ━━━");
 console.log(`  Output: ${WEB_BUILD_DIR}\n`);
