@@ -30,8 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${GeistMono.className} antialiased`}>
-        <OfflineBanner />
         {children}
+        <OfflineBanner />
       </body>
     </html>
   );
