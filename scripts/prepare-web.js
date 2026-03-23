@@ -103,6 +103,19 @@ if (fs.existsSync(WEB_BUILD_DIR)) {
 // Copy the entire standalone directory (includes server.js + node_modules)
 copyDir(STANDALONE_DIR, WEB_BUILD_DIR);
 
+// In the nested layout, Next.js copies the entire web/ source tree (including
+// web/node_modules/ pnpm symlinks) into the standalone output. Those symlinks
+// point to paths that only exist during build and are broken at runtime, causing
+// MODULE_NOT_FOUND errors because Node resolves them before the real standalone
+// node_modules/ at the parent level. Remove the broken node_modules directory.
+if (isNested) {
+  const brokenNodeModules = path.join(WEB_BUILD_DIR, 'web', 'node_modules');
+  if (fs.existsSync(brokenNodeModules)) {
+    fs.rmSync(brokenNodeModules, { recursive: true, force: true });
+    console.log('  removed: web-build/web/node_modules (broken pnpm workspace symlinks)');
+  }
+}
+
 // Determine where server.js landed in web-build and copy static alongside it
 const staticDest = isNested
   ? path.join(WEB_BUILD_DIR, 'web', '.next', 'static')
