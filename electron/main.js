@@ -273,10 +273,16 @@ function startServer(port) {
       return;
     }
 
-    const serverScript = path.join(RESOURCES_PATH, 'web-server', 'server.js');
-    if (!fs.existsSync(serverScript)) {
+    // Locate server.js: flat layout (preferred) or nested under web/ (legacy pnpm workspace layout)
+    const serverScriptFlat = path.join(RESOURCES_PATH, 'web-server', 'server.js');
+    const serverScriptNested = path.join(RESOURCES_PATH, 'web-server', 'web', 'server.js');
+    const serverScript = fs.existsSync(serverScriptFlat) ? serverScriptFlat
+      : fs.existsSync(serverScriptNested) ? serverScriptNested
+      : null;
+
+    if (!serverScript) {
       showFatalError(
-        `Bundled server not found at:\n${serverScript}\n\n` +
+        `Bundled server not found at:\n${serverScriptFlat}\n\n` +
         'The app package may be corrupt. Please reinstall.'
       );
       return;
@@ -285,7 +291,7 @@ function startServer(port) {
     env.NODE_ENV = 'production';
     cmd = nodeBin;
     args = [serverScript];
-    cwd = path.join(RESOURCES_PATH, 'web-server');
+    cwd = path.dirname(serverScript);
   }
 
   nextProcess = spawn(cmd, args, {

@@ -71,6 +71,28 @@ if (!fs.existsSync(STANDALONE_DIR)) {
   process.exit(1);
 }
 
+// Detect standalone layout: flat (server.js at root) vs nested (server.js under web/)
+// The nested layout occurs when outputFileTracingRoot is set to the workspace root (desktop/)
+// instead of the project root (web/). We prefer flat, but handle both.
+const flatServerJs = path.join(STANDALONE_DIR, 'server.js');
+const nestedServerJs = path.join(STANDALONE_DIR, 'web', 'server.js');
+const isNested = !fs.existsSync(flatServerJs) && fs.existsSync(nestedServerJs);
+
+if (!fs.existsSync(flatServerJs) && !fs.existsSync(nestedServerJs)) {
+  console.error(
+    `\nERROR: server.js not found in standalone output.\n` +
+    `Checked:\n  ${flatServerJs}\n  ${nestedServerJs}`
+  );
+  process.exit(1);
+}
+
+if (isNested) {
+  console.warn(
+    '\n  WARNING: standalone output uses nested layout (web/server.js).\n' +
+    '  Add outputFileTracingRoot: path.resolve(__dirname) to next.config.ts for a flat layout.\n'
+  );
+}
+
 // Step 2: assemble web-build/
 console.log('\n━━━ prepare-web: assembling web-build/ ━━━\n');
 
@@ -81,11 +103,20 @@ if (fs.existsSync(WEB_BUILD_DIR)) {
 // Copy the entire standalone directory (includes server.js + node_modules)
 copyDir(STANDALONE_DIR, WEB_BUILD_DIR);
 
-// Copy .next/static into <web-build>/.next/static (required by standalone server)
-copyDir(STATIC_SRC, path.join(WEB_BUILD_DIR, '.next', 'static'));
+// Determine where server.js landed in web-build and copy static alongside it
+const staticDest = isNested
+  ? path.join(WEB_BUILD_DIR, 'web', '.next', 'static')
+  : path.join(WEB_BUILD_DIR, '.next', 'static');
 
-// Copy public/ into <web-build>/public
-copyDir(PUBLIC_SRC, path.join(WEB_BUILD_DIR, 'public'));
+// Copy .next/static next to server.js (required by the standalone server)
+copyDir(STATIC_SRC, staticDest);
+
+// Copy public/ next to server.js
+const publicDest = isNested
+  ? path.join(WEB_BUILD_DIR, 'web', 'public')
+  : path.join(WEB_BUILD_DIR, 'public');
+
+copyDir(PUBLIC_SRC, publicDest);
 
 console.log('\n━━━ prepare-web: done ━━━');
 console.log(`  Output: ${WEB_BUILD_DIR}\n`);
