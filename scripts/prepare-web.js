@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 
 /**
  * scripts/prepare-web.js
@@ -25,79 +25,84 @@
  *   node_modules/    ← bundled server-side node_modules (from standalone)
  */
 
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+const { execSync } = require("child_process");
+const path = require("path");
+const fs = require("fs");
 
-const ROOT = path.resolve(__dirname, '..');
-const WEB_DIR = path.join(ROOT, 'web');
-const STANDALONE_DIR = path.join(WEB_DIR, '.next', 'standalone');
-const STATIC_SRC = path.join(WEB_DIR, '.next', 'static');
-const PUBLIC_SRC = path.join(WEB_DIR, 'public');
-const WEB_BUILD_DIR = path.join(ROOT, 'web-build');
+const ROOT = path.resolve(__dirname, "..");
+const WEB_DIR = path.join(ROOT, "web");
+const STANDALONE_DIR = path.join(WEB_DIR, ".next", "standalone");
+const STATIC_SRC = path.join(WEB_DIR, ".next", "static");
+const PUBLIC_SRC = path.join(WEB_DIR, "public");
+const WEB_BUILD_DIR = path.join(ROOT, "web-build");
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function run(cmd, cwd) {
-  console.log(`\n  $ ${cmd}  (in ${path.relative(process.cwd(), cwd)})`);
-  execSync(cmd, { cwd, stdio: 'inherit' });
+	console.log(`\n  $ ${cmd}  (in ${path.relative(process.cwd(), cwd)})`);
+	execSync(cmd, { cwd, stdio: "inherit" });
 }
 
 function copyDir(src, dest) {
-  if (!fs.existsSync(src)) return;
-  fs.cpSync(src, dest, { recursive: true });
-  console.log(`  copied: ${path.relative(ROOT, src)} → ${path.relative(ROOT, dest)}`);
+	if (!fs.existsSync(src)) return;
+	// dereference: true resolves all symlinks to real files/directories.
+	// Critical for pnpm workspaces where node_modules contain absolute symlinks
+	// pointing to the build machine's filesystem — these break on other machines.
+	fs.cpSync(src, dest, { recursive: true, dereference: true });
+	console.log(
+		`  copied: ${path.relative(ROOT, src)} → ${path.relative(ROOT, dest)}`,
+	);
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-console.log('\n━━━ prepare-web: building upstream Next.js app ━━━\n');
+console.log("\n━━━ prepare-web: building upstream Next.js app ━━━\n");
 
 if (!fs.existsSync(WEB_DIR)) {
-  console.error(`ERROR: web directory not found at:\n  ${WEB_DIR}`);
-  process.exit(1);
+	console.error(`ERROR: web directory not found at:\n  ${WEB_DIR}`);
+	process.exit(1);
 }
 
 // Step 1: build
-run('pnpm run build', WEB_DIR);
+run("pnpm run build", WEB_DIR);
 
 // Verify standalone output was produced
 if (!fs.existsSync(STANDALONE_DIR)) {
-  console.error(
-    `\nERROR: .next/standalone was not produced by the build.\n` +
-    `Make sure next.config.ts includes  output: 'standalone'\n` +
-    `  (see desktop/ARCHITECTURE.md for details)`
-  );
-  process.exit(1);
+	console.error(
+		`\nERROR: .next/standalone was not produced by the build.\n` +
+			`Make sure next.config.ts includes  output: 'standalone'\n` +
+			`  (see desktop/ARCHITECTURE.md for details)`,
+	);
+	process.exit(1);
 }
 
 // Detect standalone layout: flat (server.js at root) vs nested (server.js under web/)
 // The nested layout occurs when outputFileTracingRoot is set to the workspace root (desktop/)
 // instead of the project root (web/). We prefer flat, but handle both.
-const flatServerJs = path.join(STANDALONE_DIR, 'server.js');
-const nestedServerJs = path.join(STANDALONE_DIR, 'web', 'server.js');
+const flatServerJs = path.join(STANDALONE_DIR, "server.js");
+const nestedServerJs = path.join(STANDALONE_DIR, "web", "server.js");
 const isNested = !fs.existsSync(flatServerJs) && fs.existsSync(nestedServerJs);
 
 if (!fs.existsSync(flatServerJs) && !fs.existsSync(nestedServerJs)) {
-  console.error(
-    `\nERROR: server.js not found in standalone output.\n` +
-    `Checked:\n  ${flatServerJs}\n  ${nestedServerJs}`
-  );
-  process.exit(1);
+	console.error(
+		`\nERROR: server.js not found in standalone output.\n` +
+			`Checked:\n  ${flatServerJs}\n  ${nestedServerJs}`,
+	);
+	process.exit(1);
 }
 
 if (isNested) {
-  console.warn(
-    '\n  WARNING: standalone output uses nested layout (web/server.js).\n' +
-    '  Add outputFileTracingRoot: path.resolve(__dirname) to next.config.ts for a flat layout.\n'
-  );
+	console.warn(
+		"\n  WARNING: standalone output uses nested layout (web/server.js).\n" +
+			"  Add outputFileTracingRoot: path.resolve(__dirname) to next.config.ts for a flat layout.\n",
+	);
 }
 
 // Step 2: assemble web-build/
-console.log('\n━━━ prepare-web: assembling web-build/ ━━━\n');
+console.log("\n━━━ prepare-web: assembling web-build/ ━━━\n");
 
 if (fs.existsSync(WEB_BUILD_DIR)) {
-  fs.rmSync(WEB_BUILD_DIR, { recursive: true, force: true });
+	fs.rmSync(WEB_BUILD_DIR, { recursive: true, force: true });
 }
 
 // Copy the entire standalone directory (includes server.js + node_modules)
@@ -109,27 +114,64 @@ copyDir(STANDALONE_DIR, WEB_BUILD_DIR);
 // MODULE_NOT_FOUND errors because Node resolves them before the real standalone
 // node_modules/ at the parent level. Remove the broken node_modules directory.
 if (isNested) {
-  const brokenNodeModules = path.join(WEB_BUILD_DIR, 'web', 'node_modules');
-  if (fs.existsSync(brokenNodeModules)) {
-    fs.rmSync(brokenNodeModules, { recursive: true, force: true });
-    console.log('  removed: web-build/web/node_modules (broken pnpm workspace symlinks)');
-  }
+	const brokenNodeModules = path.join(WEB_BUILD_DIR, "web", "node_modules");
+	if (fs.existsSync(brokenNodeModules)) {
+		fs.rmSync(brokenNodeModules, { recursive: true, force: true });
+		console.log(
+			"  removed: web-build/web/node_modules (broken pnpm workspace symlinks)",
+		);
+	}
 }
 
 // Determine where server.js landed in web-build and copy static alongside it
 const staticDest = isNested
-  ? path.join(WEB_BUILD_DIR, 'web', '.next', 'static')
-  : path.join(WEB_BUILD_DIR, '.next', 'static');
+	? path.join(WEB_BUILD_DIR, "web", ".next", "static")
+	: path.join(WEB_BUILD_DIR, ".next", "static");
 
 // Copy .next/static next to server.js (required by the standalone server)
 copyDir(STATIC_SRC, staticDest);
 
 // Copy public/ next to server.js
 const publicDest = isNested
-  ? path.join(WEB_BUILD_DIR, 'web', 'public')
-  : path.join(WEB_BUILD_DIR, 'public');
+	? path.join(WEB_BUILD_DIR, "web", "public")
+	: path.join(WEB_BUILD_DIR, "public");
 
 copyDir(PUBLIC_SRC, publicDest);
 
-console.log('\n━━━ prepare-web: done ━━━');
+// Step 3: patch incomplete packages
+// Next.js file tracing may miss files loaded dynamically via require.resolve().
+// node-stdlib-browser's esm/index.js uses resolvePath('./mock/empty.js') which
+// the tracer cannot follow. Copy the full package from the source node_modules.
+const buildNodeModules = path.join(WEB_BUILD_DIR, "node_modules");
+const patchPackages = ["node-stdlib-browser", "esbuild"];
+for (const pkg of patchPackages) {
+	const dest = path.join(buildNodeModules, pkg);
+	if (!fs.existsSync(dest)) continue; // not in the build, skip
+	// Find the full package in the pnpm store or node_modules
+	const pnpmStore = path.join(ROOT, "node_modules", ".pnpm");
+	let fullPkgSrc = null;
+	if (fs.existsSync(pnpmStore)) {
+		// Search the pnpm virtual store for the package
+		for (const entry of fs.readdirSync(pnpmStore)) {
+			if (!entry.startsWith(pkg.replace("/", "+") + "@")) continue;
+			const candidate = path.join(pnpmStore, entry, "node_modules", pkg);
+			if (fs.existsSync(candidate)) {
+				fullPkgSrc = candidate;
+				break;
+			}
+		}
+	}
+	if (!fullPkgSrc) {
+		// Fallback: try direct node_modules path
+		const direct = path.join(ROOT, "node_modules", pkg);
+		if (fs.existsSync(direct)) fullPkgSrc = direct;
+	}
+	if (fullPkgSrc) {
+		fs.rmSync(dest, { recursive: true, force: true });
+		fs.cpSync(fullPkgSrc, dest, { recursive: true, dereference: true });
+		console.log(`  patched: ${pkg} (copied full package for dynamic requires)`);
+	}
+}
+
+console.log("\n━━━ prepare-web: done ━━━");
 console.log(`  Output: ${WEB_BUILD_DIR}\n`);
