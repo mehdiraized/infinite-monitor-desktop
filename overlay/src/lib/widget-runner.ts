@@ -194,10 +194,10 @@ async function ensureBaseTemplate(): Promise<string> {
 		console.log("[widget-runner] npm install done");
 
 		try {
-			await execAsync(
-				`npx shadcn@latest add --yes ${SHADCN_COMPONENTS}`,
-				{ cwd: dir, timeout: 120_000 },
-			);
+			await execAsync(`npx shadcn@latest add --yes ${SHADCN_COMPONENTS}`, {
+				cwd: dir,
+				timeout: 120_000,
+			});
 			console.log("[widget-runner] shadcn components installed");
 		} catch {
 			console.warn(
@@ -409,9 +409,7 @@ server.listen(${port}, "127.0.0.1", () => {
 		});
 
 		child.stderr!.on("data", (data: Buffer) => {
-			console.error(
-				`[widget-runner] server stderr: ${data.toString().trim()}`,
-			);
+			console.error(`[widget-runner] server stderr: ${data.toString().trim()}`);
 		});
 
 		child.on("error", (err) => {
@@ -421,8 +419,7 @@ server.listen(${port}, "127.0.0.1", () => {
 
 		child.on("exit", (code) => {
 			clearTimeout(timeout);
-			if (code !== 0)
-				reject(new Error(`File server exited with code ${code}`));
+			if (code !== 0) reject(new Error(`File server exited with code ${code}`));
 		});
 	});
 
@@ -489,10 +486,10 @@ async function doBuild(widgetId: string): Promise<void> {
 			}
 		}
 		if (extraDeps.length > 0) {
-			await execAsync(
-				`npm install --no-save ${extraDeps.join(" ")}`,
-				{ cwd: sandboxDir, timeout: 60_000 },
-			);
+			await execAsync(`npm install --no-save ${extraDeps.join(" ")}`, {
+				cwd: sandboxDir,
+				timeout: 60_000,
+			});
 		}
 
 		console.log(`[widget-runner] Building widget ${widgetId}...`);
@@ -513,9 +510,7 @@ async function doBuild(widgetId: string): Promise<void> {
 			sandboxDir,
 		});
 		widgetStatuses.set(widgetId, { status: "ready", port });
-		console.log(
-			`[widget-runner] Widget ${widgetId} serving on port ${port}`,
-		);
+		console.log(`[widget-runner] Widget ${widgetId} serving on port ${port}`);
 	} catch (err) {
 		console.error(`[widget-runner] Build error for ${widgetId}:`, err);
 		widgetStatuses.set(widgetId, { status: "error", port });
@@ -538,9 +533,7 @@ export async function buildWidget(widgetId: string): Promise<void> {
 
 const BUILD_TIMEOUT_MS = 120_000;
 
-export async function ensureWidget(
-	widgetId: string,
-): Promise<WidgetStatus> {
+export async function ensureWidget(widgetId: string): Promise<WidgetStatus> {
 	const existing = widgetStatuses.get(widgetId);
 	if (existing?.status === "ready" && widgetSandboxes.has(widgetId))
 		return existing;
@@ -566,17 +559,12 @@ export async function ensureWidget(
 	return status;
 }
 
-export async function rebuildWidget(
-	widgetId: string,
-): Promise<WidgetStatus> {
+export async function rebuildWidget(widgetId: string): Promise<WidgetStatus> {
 	const port = await getPort({ port: portNumbers(4100, 4999) });
 	const status: WidgetStatus = { status: "building", port };
 	widgetStatuses.set(widgetId, status);
 	buildWidget(widgetId).catch((err) =>
-		console.error(
-			`[widget-runner] Rebuild failed for ${widgetId}:`,
-			err,
-		),
+		console.error(`[widget-runner] Rebuild failed for ${widgetId}:`, err),
 	);
 	return status;
 }

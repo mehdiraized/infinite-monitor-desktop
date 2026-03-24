@@ -4,12 +4,21 @@ import path from "path";
 import fs from "fs";
 import * as schema from "./schema";
 
-const DB_PATH =
-	process.env.DATABASE_PATH || path.join(process.cwd(), "data", "widgets.db");
+// During `next build` (NEXT_BUILD=1, set by prepare-web.js), use an in-memory
+// database.  Build workers only evaluate the module to check exports — they
+// don't need persistent data.  Using :memory: eliminates SQLITE_BUSY errors
+// that occur when multiple workers fight over the same DB file.
+const isBuildPhase = process.env.NEXT_BUILD === "1";
 
-const dir = path.dirname(DB_PATH);
-if (!fs.existsSync(dir)) {
-	fs.mkdirSync(dir, { recursive: true });
+const DB_PATH = isBuildPhase
+	? ":memory:"
+	: process.env.DATABASE_PATH || path.join(process.cwd(), "data", "widgets.db");
+
+if (!isBuildPhase) {
+	const dir = path.dirname(DB_PATH);
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+	}
 }
 
 const sqlite = new Database(DB_PATH);

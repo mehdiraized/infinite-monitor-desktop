@@ -117,7 +117,15 @@ if (!fs.existsSync(WEB_DIR)) {
 // npm install + npx shadcn, which is unnecessary for the packaged desktop app
 // (the template is rebuilt at runtime) and frequently times out on CI.
 try {
-	run("npx --no-install next build", WEB_DIR);
+	// Pass NEXT_BUILD=1 so that overlay/src/db/index.ts uses an in-memory
+	// database instead of a file.  This eliminates SQLITE_BUSY errors when
+	// multiple page-data workers evaluate the DB module simultaneously.
+	console.log(`\n  $ npx --no-install next build  (in ${path.relative(process.cwd(), WEB_DIR)})`);
+	execSync("npx --no-install next build", {
+		cwd: WEB_DIR,
+		stdio: "inherit",
+		env: { ...process.env, NEXT_BUILD: "1" },
+	});
 } catch (err) {
 	console.error(
 		"\nERROR: 'next build' failed. Check the output above for details.",
