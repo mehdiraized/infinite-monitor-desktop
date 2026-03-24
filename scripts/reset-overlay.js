@@ -28,6 +28,8 @@ const OVERLAY_NEW_FILES = [
 	"public/sw.js",
 	"src/components/offline-banner.tsx",
 	"src/components/onboarding.tsx",
+	"src/components/api-status-banner.tsx",
+	"src/app/api/health/route.ts",
 ];
 
 if (!fs.existsSync(WEB_DIR)) {
@@ -50,8 +52,20 @@ try {
 for (const rel of OVERLAY_NEW_FILES) {
 	const full = path.join(WEB_DIR, rel);
 	if (fs.existsSync(full)) {
-		fs.rmSync(full);
+		fs.rmSync(full, { recursive: true });
 		console.log(`  ✓  Removed overlay-only file: ${rel}`);
+	}
+}
+
+// 3. Remove empty parent directories left behind
+for (const rel of OVERLAY_NEW_FILES) {
+	let dir = path.dirname(path.join(WEB_DIR, rel));
+	while (dir !== WEB_DIR) {
+		try {
+			const entries = fs.readdirSync(dir);
+			if (entries.length === 0) { fs.rmdirSync(dir); } else { break; }
+		} catch { break; }
+		dir = path.dirname(dir);
 	}
 }
 
