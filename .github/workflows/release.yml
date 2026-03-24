@@ -12,10 +12,13 @@ permissions:
 jobs:
   # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
   build-mac:
-    runs-on: macos-latest
+    # Use macos-13 (Intel).  macos-latest (ARM64) has hdiutil detach race
+    # conditions that break DMG creation with electron-builder.
+    runs-on: macos-13
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
       NEXT_TELEMETRY_DISABLED: 1
+      USE_HARD_LINKS: "false"
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
