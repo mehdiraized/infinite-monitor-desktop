@@ -12,9 +12,9 @@ permissions:
 jobs:
   # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
   build-mac:
-    # Use macos-13 (Intel).  macos-latest (ARM64) has hdiutil detach race
-    # conditions that break DMG creation with electron-builder.
-    runs-on: macos-13
+    # Use macos-14 (ARM64).  macos-13 is deprecated.  USE_HARD_LINKS=false
+    # prevents hdiutil detach race conditions during DMG creation.
+    runs-on: macos-14
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
       NEXT_TELEMETRY_DISABLED: 1
