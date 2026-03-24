@@ -34,6 +34,7 @@ import {
 } from "@/db/widgets";
 
 const execAsync = promisify(execCb);
+const TEMPLATE_INSTALL_CMD = "npm install --include=dev";
 
 // ── Types ──
 
@@ -41,6 +42,7 @@ interface WidgetStatus {
 	status: "building" | "ready" | "error";
 	port: number;
 	startedAt?: number;
+	errorMessage?: string;
 }
 
 interface WidgetSandbox {
@@ -54,6 +56,24 @@ interface WidgetSandbox {
 const widgetSandboxes = new Map<string, WidgetSandbox>();
 const widgetStatuses = new Map<string, WidgetStatus>();
 const buildLocks = new Map<string, Promise<void>>();
+
+// ── Helpers ──
+
+function getBuildErrorMessage(error: unknown): string {
+	if (error && typeof error === "object") {
+		const err = error as {
+			stderr?: string | Buffer;
+			stdout?: string | Buffer;
+			message?: string;
+		};
+		const detail = err.stderr ?? err.stdout ?? err.message;
+		if (detail) {
+			return String(detail).trim().split("\n").slice(-8).join("\n");
+		}
+	}
+	if (typeof error === "string") return error;
+	return "Unknown widget build error";
+}
 
 // ── Template content ──
 
@@ -190,7 +210,7 @@ async function ensureBaseTemplate(): Promise<string> {
 			writeFileSync(full, content);
 		}
 
-		await execAsync("npm install", { cwd: dir, timeout: 120_000 });
+		await execAsync(TEMPLATE_INSTALL_CMD, { cwd: dir, timeout: 120_000 });
 		console.log("[widget-runner] npm install done");
 
 		try {
@@ -453,7 +473,12 @@ async function doBuild(widgetId: string): Promise<void> {
 	try {
 		const files = getWidgetFiles(widgetId);
 		if (!files["src/App.tsx"]) {
-			widgetStatuses.set(widgetId, { status: "error", port });
+			widgetStatuses.set(widgetId, {
+				status: "error",
+				port,
+				startedAt: Date.now(),
+				errorMessage: "Missing src/App.tsx",
+			});
 			console.error(`[widget-runner] No src/App.tsx for ${widgetId}`);
 			return;
 		}
@@ -512,8 +537,14 @@ async function doBuild(widgetId: string): Promise<void> {
 		widgetStatuses.set(widgetId, { status: "ready", port });
 		console.log(`[widget-runner] Widget ${widgetId} serving on port ${port}`);
 	} catch (err) {
-		console.error(`[widget-runner] Build error for ${widgetId}:`, err);
-		widgetStatuses.set(widgetId, { status: "error", port });
+		const msg = getBuildErrorMessage(err);
+		console.error(`[widget-runner] Build error for ${widgetId}:`, msg);
+		widgetStatuses.set(widgetId, {
+			status: "error",
+			port,
+			startedAt: Date.now(),
+			errorMessage: msg,
+		});
 	}
 }
 
@@ -532,11 +563,21 @@ export async function buildWidget(widgetId: string): Promise<void> {
 }
 
 const BUILD_TIMEOUT_MS = 120_000;
+const ERROR_RETRY_MS = 30_000;
 
 export async function ensureWidget(widgetId: string): Promise<WidgetStatus> {
 	const existing = widgetStatuses.get(widgetId);
 	if (existing?.status === "ready" && widgetSandboxes.has(widgetId))
 		return existing;
+
+	// Allow error retry after ERROR_RETRY_MS, but don't retry earlier to prevent
+	// the iframe auto-refresh from spawning infinite failed builds.
+	const shouldRetryError =
+		existing?.status === "error" &&
+		existing.startedAt &&
+		Date.now() - existing.startedAt > ERROR_RETRY_MS;
+	if (existing?.status === "error" && !shouldRetryError) return existing;
+
 	const isStale =
 		existing?.status === "building" &&
 		existing.startedAt &&
@@ -560,8 +601,11 @@ export async function ensureWidget(widgetId: string): Promise<WidgetStatus> {
 }
 
 export async function rebuildWidget(widgetId: string): Promise<WidgetStatus> {
-	const port = await getPort({ port: portNumbers(4100, 4999) });
-	const status: WidgetStatus = { status: "building", port };
+	const status: WidgetStatus = {
+		status: "building",
+		port: 0,
+		startedAt: Date.now(),
+	};
 	widgetStatuses.set(widgetId, status);
 	buildWidget(widgetId).catch((err) =>
 		console.error(`[widget-runner] Rebuild failed for ${widgetId}:`, err),

@@ -284,11 +284,21 @@ console.log("\n  Creating shims for hash-suffixed externals...");
 						const prefix = realPkg.replace("/", "+") + "@";
 						for (const entry of fs.readdirSync(pnpmStore)) {
 							if (entry.startsWith(prefix)) {
-								const candidate = path.join(pnpmStore, entry, "node_modules", realPkg);
+								const candidate = path.join(
+									pnpmStore,
+									entry,
+									"node_modules",
+									realPkg,
+								);
 								if (fs.existsSync(candidate)) {
 									// Copy the real package to flat node_modules first
-									fs.cpSync(candidate, realDir, { recursive: true, dereference: true });
-									console.log(`  ensured: ${realPkg} (copied from .pnpm store)`);
+									fs.cpSync(candidate, realDir, {
+										recursive: true,
+										dereference: true,
+									});
+									console.log(
+										`  ensured: ${realPkg} (copied from .pnpm store)`,
+									);
 									found = true;
 									break;
 								}
@@ -296,7 +306,9 @@ console.log("\n  Creating shims for hash-suffixed externals...");
 						}
 					}
 					if (!found) {
-						console.warn(`  skip shim: ${hashId} → ${realPkg} (package not found)`);
+						console.warn(
+							`  skip shim: ${hashId} → ${realPkg} (package not found)`,
+						);
 						continue;
 					}
 				}
@@ -314,15 +326,23 @@ console.log("\n  Creating shims for hash-suffixed externals...");
 				);
 				fs.writeFileSync(
 					path.join(shimDir, "package.json"),
-					JSON.stringify({
-						name: hashId,
-						version: "0.0.0",
-						main: "index.js",
-						module: "index.mjs",
-						exports: {
-							".": { import: "./index.mjs", require: "./index.js", default: "./index.js" },
+					JSON.stringify(
+						{
+							name: hashId,
+							version: "0.0.0",
+							main: "index.js",
+							module: "index.mjs",
+							exports: {
+								".": {
+									import: "./index.mjs",
+									require: "./index.js",
+									default: "./index.js",
+								},
+							},
 						},
-					}, null, 2) + "\n",
+						null,
+						2,
+					) + "\n",
 				);
 				console.log(`  shimmed: ${hashId} → ${realPkg}`);
 			}
