@@ -3,6 +3,7 @@
 ## CRITICAL: Never modify web/ directly
 
 `web/` is a **git submodule** pointing to the user's fork:
+
 - **submodule URL**: https://github.com/mehdiraized/infinite-monitor (user's fork)
 - **upstream remote** (inside web/): https://github.com/homanp/infinite-monitor (original)
 
@@ -36,6 +37,7 @@ desktop/
 This project uses **pnpm workspaces** with `shamefully-hoist=true`.
 
 Key points:
+
 - Run all installs from `desktop/` root — **never** run `npm install` or `pnpm install` inside `web/` directly
 - All packages (electron + web deps) are installed into `desktop/node_modules/` (flat, like npm)
 - `web/node_modules/` contains only pnpm symlinks pointing to `desktop/node_modules/`
@@ -65,6 +67,7 @@ overlay/src/components/add-menu.tsx       → web/src/components/add-menu.tsx
 overlay/src/components/dashboard-grid.tsx → web/src/components/dashboard-grid.tsx
 overlay/src/components/onboarding.tsx     → web/src/components/onboarding.tsx
 overlay/src/instrumentation.ts            → web/src/instrumentation.ts
+overlay/src/db/index.ts                   → web/src/db/index.ts
 ```
 
 The `predev` and `prebuild` pnpm hooks run `apply-overlay.js` automatically.
@@ -112,6 +115,7 @@ node scripts/reset-overlay.js
 4. Commit the change in `overlay/` to the `desktop/` git repo
 
 **Never commit any changes inside `web/`.** If you accidentally modify `web/`, run:
+
 ```bash
 node scripts/reset-overlay.js
 ```
@@ -120,17 +124,18 @@ node scripts/reset-overlay.js
 
 ## What each overlay file does
 
-| File | Why it's overridden |
-|------|---------------------|
-| `next.config.ts` | Adds `output: "standalone"`, `allowedDevOrigins`, `turbopack.root` (set to desktop/ for pnpm symlink resolution) |
-| `public/sw.js` | Service Worker — caches external widget API data for offline use (200 MB / 30 days) |
-| `src/app/page.tsx` | Removes GitHub link and logo; adds macOS traffic-light drag region |
-| `src/app/layout.tsx` | Adds `<OfflineBanner>` to the root layout |
-| `src/components/offline-banner.tsx` | New component — shows banner when network is offline |
-| `src/components/add-menu.tsx` | Adds `data-add-menu-trigger` attribute for native menu integration |
-| `src/components/dashboard-grid.tsx` | Auto-seeds Crypto Trader template on first launch |
-| `src/components/onboarding.tsx` | New component — 3-slide first-launch onboarding flow |
-| `src/instrumentation.ts` | No-op override — upstream hook loads `@secure-exec/core` + `isolated-vm` which crash in standalone builds (Turbopack hash-suffixed externals) |
+| File                                | Why it's overridden                                                                                                                           |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `next.config.ts`                    | Adds `output: "standalone"`, `allowedDevOrigins`, `turbopack.root` (set to desktop/ for pnpm symlink resolution)                              |
+| `public/sw.js`                      | Service Worker — caches external widget API data for offline use (200 MB / 30 days)                                                           |
+| `src/app/page.tsx`                  | Removes GitHub link and logo; adds macOS traffic-light drag region                                                                            |
+| `src/app/layout.tsx`                | Adds `<OfflineBanner>` to the root layout                                                                                                     |
+| `src/components/offline-banner.tsx` | New component — shows banner when network is offline                                                                                          |
+| `src/components/add-menu.tsx`       | Adds `data-add-menu-trigger` attribute for native menu integration                                                                            |
+| `src/components/dashboard-grid.tsx` | Auto-seeds Crypto Trader template on first launch                                                                                             |
+| `src/components/onboarding.tsx`     | New component — 3-slide first-launch onboarding flow                                                                                          |
+| `src/instrumentation.ts`            | No-op override — upstream hook loads `@secure-exec/core` + `isolated-vm` which crash in standalone builds (Turbopack hash-suffixed externals) |
+| `src/db/index.ts`                   | Adds `busy_timeout = 5000` pragma — prevents SQLITE_BUSY during `next build` (multiple workers collecting page data)                          |
 
 ---
 

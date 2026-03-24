@@ -11,5 +11,5 @@
  * The template is rebuilt on demand at runtime, so skipping the warm-up is safe.
  */
 export async function register() {
-  // no-op for desktop
+	// no-op for desktop
 }
