@@ -27,6 +27,7 @@ const WEB_DIR = path.join(ROOT, 'web');
 const OVERLAY_NEW_FILES = [
   'public/sw.js',
   'src/components/offline-banner.tsx',
+  'src/components/onboarding.tsx',
 ];
 
 if (!fs.existsSync(WEB_DIR)) {

@@ -64,6 +64,7 @@ overlay/src/components/offline-banner.tsx → web/src/components/offline-banner.
 overlay/src/components/add-menu.tsx       → web/src/components/add-menu.tsx
 overlay/src/components/dashboard-grid.tsx → web/src/components/dashboard-grid.tsx
 overlay/src/components/onboarding.tsx     → web/src/components/onboarding.tsx
+overlay/src/instrumentation.ts            → web/src/instrumentation.ts
 ```
 
 The `predev` and `prebuild` pnpm hooks run `apply-overlay.js` automatically.
@@ -129,6 +130,7 @@ node scripts/reset-overlay.js
 | `src/components/add-menu.tsx` | Adds `data-add-menu-trigger` attribute for native menu integration |
 | `src/components/dashboard-grid.tsx` | Auto-seeds Crypto Trader template on first launch |
 | `src/components/onboarding.tsx` | New component — 3-slide first-launch onboarding flow |
+| `src/instrumentation.ts` | No-op override — upstream hook loads `@secure-exec/core` + `isolated-vm` which crash in standalone builds (Turbopack hash-suffixed externals) |
 
 ---
 

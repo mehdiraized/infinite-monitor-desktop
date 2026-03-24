@@ -119,7 +119,9 @@ if (!fs.existsSync(WEB_DIR)) {
 try {
 	run("npx --no-install next build", WEB_DIR);
 } catch (err) {
-	console.error("\nERROR: 'next build' failed. Check the output above for details.");
+	console.error(
+		"\nERROR: 'next build' failed. Check the output above for details.",
+	);
 	process.exit(1);
 }
 
