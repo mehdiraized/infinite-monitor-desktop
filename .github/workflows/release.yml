@@ -1,19 +1,74 @@
 name: Release
 
-# Triggered when npm run release pushes a version tag (e.g. v1.2.3)
+# Triggered when:
+#   1. A version tag is pushed manually (e.g. v1.2.3)
+#   2. Code is pushed to main (auto-bumps patch version → tag → build)
 on:
   push:
     tags:
       - "v*.*.*"
+    branches:
+      - main
 
 permissions:
   contents: write # needed to create GitHub Releases
 
 jobs:
+  # ── Auto-tag: bump patch version on push to main (skip if already tagged) ──
+  auto-tag:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      skipped: ${{ steps.check.outputs.skipped }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if HEAD is already tagged
+        id: check
+        run: |
+          if git describe --tags --exact-match HEAD 2>/dev/null; then
+            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "HEAD is already tagged — skipping auto-tag."
+          else
+            echo "skipped=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node 22
+        if: steps.check.outputs.skipped == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Bump patch version, tag, and push
+        if: steps.check.outputs.skipped == 'false'
+        id: tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version patch --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          TAG="v${NEW_VERSION}"
+          git add package.json
+          git commit -m "chore: bump version to ${NEW_VERSION}"
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          git push origin main --follow-tags
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "Created and pushed tag ${TAG}"
+
   # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
   build-mac:
     # Use macos-14 (ARM64).  macos-13 is deprecated.  USE_HARD_LINKS=false
     # prevents hdiutil detach race conditions during DMG creation.
+    # Runs on tag push (manual) or after auto-tag (push to main)
+    if: >-
+      always() && (
+        startsWith(github.ref, 'refs/tags/v')
+        || (needs.auto-tag.result == 'success' && needs.auto-tag.outputs.skipped == 'false')
+      )
+    needs: [auto-tag]
     runs-on: macos-14
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
@@ -23,6 +78,7 @@ jobs:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.auto-tag.outputs.tag || github.ref }}
           submodules: "recursive"
 
       - name: Set up Node 22
@@ -73,6 +129,12 @@ jobs:
 
   # ── Windows build (produces .exe NSIS installer for x64) ──────────────────
   build-win:
+    if: >-
+      always() && (
+        startsWith(github.ref, 'refs/tags/v')
+        || (needs.auto-tag.result == 'success' && needs.auto-tag.outputs.skipped == 'false')
+      )
+    needs: [auto-tag]
     runs-on: windows-latest
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
@@ -81,6 +143,7 @@ jobs:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.auto-tag.outputs.tag || github.ref }}
           submodules: "recursive"
 
       - name: Set up Node 22
@@ -127,6 +190,12 @@ jobs:
 
   # ── Linux build (produces .AppImage + .deb for x64) ───────────────────────
   build-linux:
+    if: >-
+      always() && (
+        startsWith(github.ref, 'refs/tags/v')
+        || (needs.auto-tag.result == 'success' && needs.auto-tag.outputs.skipped == 'false')
+      )
+    needs: [auto-tag]
     runs-on: ubuntu-latest
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
@@ -135,6 +204,7 @@ jobs:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.auto-tag.outputs.tag || github.ref }}
           submodules: "recursive"
 
       - name: Set up Node 22
@@ -186,11 +256,13 @@ jobs:
 
   # ── Create GitHub Release with all artifacts ──────────────────────────────
   release:
-    needs: [build-mac, build-win, build-linux]
+    needs: [auto-tag, build-mac, build-win, build-linux]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (for release notes)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.auto-tag.outputs.tag || github.ref_name }}
 
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
@@ -204,9 +276,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.auto-tag.outputs.tag || github.ref_name }}
           files: dist/**
           generate_release_notes: true
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }} # e.g. v1.0.0-beta
+          prerelease: ${{ contains(needs.auto-tag.outputs.tag || github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
