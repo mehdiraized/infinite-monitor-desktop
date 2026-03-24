@@ -5,21 +5,26 @@ import fs from "fs";
 import * as schema from "./schema";
 
 const DB_PATH =
-  process.env.DATABASE_PATH || path.join(process.cwd(), "data", "widgets.db");
+	process.env.DATABASE_PATH || path.join(process.cwd(), "data", "widgets.db");
 
 const dir = path.dirname(DB_PATH);
 if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
+	fs.mkdirSync(dir, { recursive: true });
 }
 
 const sqlite = new Database(DB_PATH);
 
-sqlite.pragma("journal_mode = WAL");
-// Allow up to 5 s of retries when another process holds the lock.
-// Prevents SQLITE_BUSY during `next build` (multiple workers collecting page data).
+// Set busy_timeout FIRST — before any other operation.
+// Makes SQLite retry for up to 5 s when another process holds the write lock.
 sqlite.pragma("busy_timeout = 5000");
+sqlite.pragma("journal_mode = WAL");
 
-sqlite.exec(`CREATE TABLE IF NOT EXISTS dashboards (
+// Wrap ALL DDL in a single IMMEDIATE transaction so the write lock is
+// acquired once (with busy_timeout retry) and all schema changes run
+// atomically.  This prevents SQLITE_BUSY when multiple Next.js build
+// workers evaluate this module simultaneously.
+const initSchema = sqlite.transaction(() => {
+	sqlite.exec(`CREATE TABLE IF NOT EXISTS dashboards (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL DEFAULT 'Dashboard',
   widget_ids_json TEXT,
@@ -27,7 +32,7 @@ sqlite.exec(`CREATE TABLE IF NOT EXISTS dashboards (
   updated_at INTEGER NOT NULL DEFAULT (unixepoch())
 )`);
 
-sqlite.exec(`CREATE TABLE IF NOT EXISTS widgets (
+	sqlite.exec(`CREATE TABLE IF NOT EXISTS widgets (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL DEFAULT 'Untitled Widget',
   description TEXT NOT NULL DEFAULT '',
@@ -39,15 +44,17 @@ sqlite.exec(`CREATE TABLE IF NOT EXISTS widgets (
   updated_at INTEGER NOT NULL DEFAULT (unixepoch())
 )`);
 
-{
-  const cols = sqlite.prepare("PRAGMA table_info(widgets)").all() as { name: string }[];
-  const colNames = new Set(cols.map((c) => c.name));
-  if (!colNames.has("files_json")) {
-    sqlite.exec("ALTER TABLE widgets ADD COLUMN files_json TEXT");
-  }
-}
+	{
+		const cols = sqlite.prepare("PRAGMA table_info(widgets)").all() as {
+			name: string;
+		}[];
+		const colNames = new Set(cols.map((c) => c.name));
+		if (!colNames.has("files_json")) {
+			sqlite.exec("ALTER TABLE widgets ADD COLUMN files_json TEXT");
+		}
+	}
 
-sqlite.exec(`CREATE TABLE IF NOT EXISTS text_blocks (
+	sqlite.exec(`CREATE TABLE IF NOT EXISTS text_blocks (
   id TEXT PRIMARY KEY,
   text TEXT NOT NULL DEFAULT '',
   font_size INTEGER NOT NULL DEFAULT 24,
@@ -56,13 +63,18 @@ sqlite.exec(`CREATE TABLE IF NOT EXISTS text_blocks (
   updated_at INTEGER NOT NULL DEFAULT (unixepoch())
 )`);
 
-{
-  const dashCols = sqlite.prepare("PRAGMA table_info(dashboards)").all() as { name: string }[];
-  const dashColNames = new Set(dashCols.map((c) => c.name));
-  if (!dashColNames.has("text_block_ids_json")) {
-    sqlite.exec("ALTER TABLE dashboards ADD COLUMN text_block_ids_json TEXT");
-  }
-}
+	{
+		const dashCols = sqlite.prepare("PRAGMA table_info(dashboards)").all() as {
+			name: string;
+		}[];
+		const dashColNames = new Set(dashCols.map((c) => c.name));
+		if (!dashColNames.has("text_block_ids_json")) {
+			sqlite.exec("ALTER TABLE dashboards ADD COLUMN text_block_ids_json TEXT");
+		}
+	}
+});
+
+initSchema.immediate();
 
 export const db = drizzle(sqlite, { schema });
 
