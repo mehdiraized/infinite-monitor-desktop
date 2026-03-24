@@ -8,9 +8,13 @@ const nextConfig: NextConfig = {
 	// Allow hot-reload WebSocket connections from 127.0.0.1 (Electron dev mode).
 	// Safe: this only applies in development; has no effect in production builds.
 	allowedDevOrigins: ["127.0.0.1"],
+	// Only keep native / binary packages external.  Pure-JS packages like
+	// just-bash and bash-tool are bundled because Turbopack adds a hash suffix
+	// to external names (e.g. "bash-tool-958b1adf8a67bcf9") that Node.js
+	// cannot resolve at runtime in the standalone build.
+	// The no-oped packages (@secure-exec/*, isolated-vm) are handled by the
+	// overlay instrumentation.ts which prevents them from being imported.
 	serverExternalPackages: [
-		"just-bash",
-		"bash-tool",
 		"node-liblzma",
 		"@mongodb-js/zstd",
 		"@secure-exec/node",

@@ -63,8 +63,14 @@ for (const rel of OVERLAY_NEW_FILES) {
 	while (dir !== WEB_DIR) {
 		try {
 			const entries = fs.readdirSync(dir);
-			if (entries.length === 0) { fs.rmdirSync(dir); } else { break; }
-		} catch { break; }
+			if (entries.length === 0) {
+				fs.rmdirSync(dir);
+			} else {
+				break;
+			}
+		} catch {
+			break;
+		}
 		dir = path.dirname(dir);
 	}
 }

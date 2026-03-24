@@ -242,7 +242,96 @@ for (const pkg of patchPackages) {
 	}
 }
 
-// Step 4: resolve ALL remaining symlinks (safety net)
+// Step 4: create shims for Turbopack hash-suffixed externals
+// Turbopack appends a content hash to serverExternalPackages names in the
+// generated chunks (e.g. "just-bash-4c29e37088fb84b8").  Node.js cannot
+// resolve these names at runtime.  Scan the server chunks for the pattern
+// and create lightweight shim packages that re-export the real module.
+console.log("\n  Creating shims for hash-suffixed externals...");
+{
+	const chunksDir = isNested
+		? path.join(WEB_BUILD_DIR, "web", ".next", "server", "chunks")
+		: path.join(WEB_BUILD_DIR, ".next", "server", "chunks");
+
+	// Match e.y("pkg-hexhash") or e.y("@scope+pkg-hexhash")
+	const extRe = /\.y\("([^"]+)-([0-9a-f]{8,})"\)/g;
+	const shimmed = new Set();
+
+	if (fs.existsSync(chunksDir)) {
+		for (const file of fs.readdirSync(chunksDir)) {
+			if (!file.endsWith(".js")) continue;
+			const content = fs.readFileSync(path.join(chunksDir, file), "utf-8");
+			let m;
+			while ((m = extRe.exec(content)) !== null) {
+				const rawPkg = m[1]; // e.g. "just-bash" or "@scope+pkg"
+				const hash = m[2];
+				const hashId = `${rawPkg}-${hash}`; // e.g. "just-bash-4c29e37088fb84b8"
+				const realPkg = rawPkg.replace(/\+/g, "/"); // "@scope+pkg" → "@scope/pkg"
+
+				if (shimmed.has(hashId)) continue;
+				shimmed.add(hashId);
+
+				const shimDir = path.join(buildNodeModules, hashId);
+				if (fs.existsSync(shimDir)) continue; // already present
+
+				// Verify the real package is resolvable
+				const realDir = path.join(buildNodeModules, realPkg);
+				if (!fs.existsSync(realDir)) {
+					// Also check the pnpm virtual store
+					const pnpmStore = path.join(buildNodeModules, ".pnpm");
+					let found = false;
+					if (fs.existsSync(pnpmStore)) {
+						const prefix = realPkg.replace("/", "+") + "@";
+						for (const entry of fs.readdirSync(pnpmStore)) {
+							if (entry.startsWith(prefix)) {
+								const candidate = path.join(pnpmStore, entry, "node_modules", realPkg);
+								if (fs.existsSync(candidate)) {
+									// Copy the real package to flat node_modules first
+									fs.cpSync(candidate, realDir, { recursive: true, dereference: true });
+									console.log(`  ensured: ${realPkg} (copied from .pnpm store)`);
+									found = true;
+									break;
+								}
+							}
+						}
+					}
+					if (!found) {
+						console.warn(`  skip shim: ${hashId} → ${realPkg} (package not found)`);
+						continue;
+					}
+				}
+
+				fs.mkdirSync(shimDir, { recursive: true });
+				// CJS shim that re-exports the real package
+				fs.writeFileSync(
+					path.join(shimDir, "index.js"),
+					`module.exports = require(${JSON.stringify(realPkg)});\n`,
+				);
+				// ESM shim for dynamic import()
+				fs.writeFileSync(
+					path.join(shimDir, "index.mjs"),
+					`export * from ${JSON.stringify(realPkg)};\nimport _default from ${JSON.stringify(realPkg)};\nexport default _default;\n`,
+				);
+				fs.writeFileSync(
+					path.join(shimDir, "package.json"),
+					JSON.stringify({
+						name: hashId,
+						version: "0.0.0",
+						main: "index.js",
+						module: "index.mjs",
+						exports: {
+							".": { import: "./index.mjs", require: "./index.js", default: "./index.js" },
+						},
+					}, null, 2) + "\n",
+				);
+				console.log(`  shimmed: ${hashId} → ${realPkg}`);
+			}
+		}
+	}
+	console.log(`  ${shimmed.size} external shim(s) created.`);
+}
+
+// Step 5: resolve ALL remaining symlinks (safety net)
 // fs.cpSync({ dereference: true }) should handle symlinks, but on some CI
 // environments (GitHub Actions + pnpm) absolute symlinks survive the copy.
 // Walk the whole tree and replace every last symlink with a real copy.
@@ -250,7 +339,7 @@ console.log("\n  Resolving remaining symlinks...");
 const resolved = resolveAllSymlinks(WEB_BUILD_DIR);
 console.log(`  ${resolved} symlink(s) resolved.`);
 
-// Step 5: verify — fail the build if any symlinks remain
+// Step 6: verify — fail the build if any symlinks remain
 let remaining = 0;
 function countSymlinks(dir) {
 	let entries;
