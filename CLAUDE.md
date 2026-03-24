@@ -68,6 +68,7 @@ overlay/src/components/dashboard-grid.tsx → web/src/components/dashboard-grid.
 overlay/src/components/onboarding.tsx     → web/src/components/onboarding.tsx
 overlay/src/instrumentation.ts            → web/src/instrumentation.ts
 overlay/src/db/index.ts                   → web/src/db/index.ts
+overlay/src/lib/widget-runner.ts          → web/src/lib/widget-runner.ts
 ```
 
 The `predev` and `prebuild` pnpm hooks run `apply-overlay.js` automatically.
@@ -135,7 +136,8 @@ node scripts/reset-overlay.js
 | `src/components/dashboard-grid.tsx` | Auto-seeds Crypto Trader template on first launch                                                                                             |
 | `src/components/onboarding.tsx`     | New component — 3-slide first-launch onboarding flow                                                                                          |
 | `src/instrumentation.ts`            | No-op override — upstream hook loads `@secure-exec/core` + `isolated-vm` which crash in standalone builds (Turbopack hash-suffixed externals) |
-| `src/db/index.ts`                   | Adds `busy_timeout = 5000` pragma — prevents SQLITE_BUSY during `next build` (multiple workers collecting page data)                          |
+| `src/db/index.ts`                   | Adds `busy_timeout = 5000` pragma + wraps DDL in IMMEDIATE transaction — prevents SQLITE_BUSY during `next build`                             |
+| `src/lib/widget-runner.ts`          | Replaces `secure-exec` sandbox with plain Node.js child process for widget file servers — avoids native module loading issues in standalone   |
 
 ---
 
