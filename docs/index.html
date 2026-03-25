@@ -1,696 +1,1246 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Infinite Monitor — AI-Powered Dashboard Builder</title>
-  <meta name="description" content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline. Free and open-source for macOS, Windows & Linux.">
-  <meta property="og:title" content="Infinite Monitor — AI-Powered Dashboard Builder">
-  <meta property="og:description" content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Infinite Monitor — AI-Powered Dashboard Builder">
-  <meta name="twitter:description" content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline.">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Infinite Monitor — AI-Powered Dashboard Builder</title>
+		<meta
+			name="description"
+			content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline. Free and open-source for macOS, Windows & Linux."
+		/>
+		<meta
+			property="og:title"
+			content="Infinite Monitor — AI-Powered Dashboard Builder"
+		/>
+		<meta
+			property="og:description"
+			content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline."
+		/>
+		<meta property="og:type" content="website" />
+		<meta
+			property="og:image"
+			content="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg"
+		/>
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta
+			name="twitter:title"
+			content="Infinite Monitor — AI-Powered Dashboard Builder"
+		/>
+		<meta
+			name="twitter:description"
+			content="Build beautiful AI-powered dashboards. Monitor crypto, news, markets and more — runs locally, works offline."
+		/>
+		<meta
+			name="twitter:image"
+			content="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg"
+		/>
+		<script defer src="https://statics.mehd.ir/stats" data-website-id="237c0fed-054d-416c-a138-c66ec1f4b182"></script>
+		<style>
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
 
-    :root {
-      --bg:       #09090b;
-      --surface:  #111113;
-      --border:   #27272a;
-      --muted:    #52525b;
-      --subtle:   #71717a;
-      --text:     #e4e4e7;
-      --bright:   #fafafa;
-      --indigo:   #6366f1;
-      --violet:   #8b5cf6;
-      --violet-l: #a78bfa;
-      --violet-ll:#c4b5fd;
-    }
+			:root {
+				--bg: #09090b;
+				--surface: #111113;
+				--border: #27272a;
+				--muted: #52525b;
+				--subtle: #71717a;
+				--text: #e4e4e7;
+				--bright: #fafafa;
+				--indigo: #6366f1;
+				--violet: #8b5cf6;
+				--violet-l: #a78bfa;
+				--violet-ll: #c4b5fd;
+			}
 
-    html { scroll-behavior: smooth; }
+			html {
+				scroll-behavior: smooth;
+			}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+			body {
+				background: var(--bg);
+				color: var(--text);
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+				line-height: 1.6;
+				overflow-x: hidden;
+			}
 
-    /* ── Nav ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 40px;
-      background: rgba(9,9,11,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 15px; font-weight: 600; color: var(--bright);
-      text-decoration: none;
-    }
-    .nav-logo svg { flex-shrink: 0; }
-    .nav-links { display: flex; gap: 28px; }
-    .nav-links a {
-      font-size: 13px; color: var(--subtle); text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      font-size: 13px; font-weight: 500; padding: 7px 16px;
-      background: var(--indigo); color: #fff; border-radius: 7px;
-      text-decoration: none; transition: background 0.2s;
-    }
-    .nav-cta:hover { background: var(--violet); }
+			/* ── Nav ── */
+			nav {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 100;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 14px 40px;
+				background: rgba(9, 9, 11, 0.85);
+				backdrop-filter: blur(12px);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.nav-logo {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-size: 15px;
+				font-weight: 600;
+				color: var(--bright);
+				text-decoration: none;
+			}
+			.nav-logo svg {
+				flex-shrink: 0;
+			}
+			.nav-links {
+				display: flex;
+				gap: 28px;
+			}
+			.nav-links a {
+				font-size: 13px;
+				color: var(--subtle);
+				text-decoration: none;
+				transition: color 0.2s;
+			}
+			.nav-links a:hover {
+				color: var(--text);
+			}
+			.nav-cta {
+				font-size: 13px;
+				font-weight: 500;
+				padding: 7px 16px;
+				background: var(--indigo);
+				color: #fff;
+				border-radius: 7px;
+				text-decoration: none;
+				transition: background 0.2s;
+			}
+			.nav-cta:hover {
+				background: var(--violet);
+			}
 
-    /* ── Hero ── */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 120px 24px 80px;
-      position: relative; overflow: hidden;
-    }
-    .hero-glow {
-      position: absolute; width: 700px; height: 500px;
-      background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.06) 40%, transparent 70%);
-      pointer-events: none;
-      animation: breathe 6s ease-in-out infinite;
-    }
-    @keyframes breathe { 0%,100% { opacity:.7; transform:scale(1); } 50% { opacity:1; transform:scale(1.06); } }
+			/* ── Hero ── */
+			.hero {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 120px 24px 80px;
+				position: relative;
+				overflow: hidden;
+			}
+			.hero-glow {
+				position: absolute;
+				width: 700px;
+				height: 500px;
+				background: radial-gradient(
+					ellipse,
+					rgba(99, 102, 241, 0.12) 0%,
+					rgba(139, 92, 246, 0.06) 40%,
+					transparent 70%
+				);
+				pointer-events: none;
+				animation: breathe 6s ease-in-out infinite;
+			}
+			@keyframes breathe {
+				0%,
+				100% {
+					opacity: 0.7;
+					transform: scale(1);
+				}
+				50% {
+					opacity: 1;
+					transform: scale(1.06);
+				}
+			}
 
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 100px;
-      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25);
-      font-size: 12px; font-weight: 500; color: var(--violet-l);
-      margin-bottom: 24px;
-    }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); }
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				padding: 5px 12px;
+				border-radius: 100px;
+				background: rgba(139, 92, 246, 0.12);
+				border: 1px solid rgba(139, 92, 246, 0.25);
+				font-size: 12px;
+				font-weight: 500;
+				color: var(--violet-l);
+				margin-bottom: 24px;
+			}
+			.badge-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				background: var(--violet);
+			}
 
-    .hero h1 {
-      font-size: clamp(36px, 6vw, 72px);
-      font-weight: 800; letter-spacing: -0.03em;
-      text-align: center; max-width: 900px;
-      background: linear-gradient(135deg, var(--bright) 0%, var(--violet-ll) 60%, var(--indigo) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1.08;
-    }
-    .hero p {
-      margin-top: 20px; max-width: 560px; text-align: center;
-      font-size: clamp(15px, 2vw, 18px); color: var(--subtle); line-height: 1.65;
-    }
+			.hero h1 {
+				font-size: clamp(36px, 6vw, 72px);
+				font-weight: 800;
+				letter-spacing: -0.03em;
+				text-align: center;
+				max-width: 900px;
+				background: linear-gradient(
+					135deg,
+					var(--bright) 0%,
+					var(--violet-ll) 60%,
+					var(--indigo) 100%
+				);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+				line-height: 1.08;
+			}
+			.hero p {
+				margin-top: 20px;
+				max-width: 560px;
+				text-align: center;
+				font-size: clamp(15px, 2vw, 18px);
+				color: var(--subtle);
+				line-height: 1.65;
+			}
 
-    .hero-actions {
-      display: flex; gap: 12px; margin-top: 40px; flex-wrap: wrap; justify-content: center;
-    }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 24px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--indigo), var(--violet));
-      color: #fff; font-size: 15px; font-weight: 600;
-      text-decoration: none; transition: opacity 0.2s, transform 0.15s;
-      box-shadow: 0 4px 24px rgba(99,102,241,0.35);
-    }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-secondary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 24px; border-radius: 10px;
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text); font-size: 15px; font-weight: 500;
-      text-decoration: none; transition: border-color 0.2s, background 0.2s;
-    }
-    .btn-secondary:hover { border-color: var(--muted); background: rgba(255,255,255,0.03); }
+			.hero-actions {
+				display: flex;
+				gap: 12px;
+				margin-top: 40px;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+			.btn-primary {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 12px 24px;
+				border-radius: 10px;
+				background: linear-gradient(135deg, var(--indigo), var(--violet));
+				color: #fff;
+				font-size: 15px;
+				font-weight: 600;
+				text-decoration: none;
+				transition:
+					opacity 0.2s,
+					transform 0.15s;
+				box-shadow: 0 4px 24px rgba(99, 102, 241, 0.35);
+			}
+			.btn-primary:hover {
+				opacity: 0.9;
+				transform: translateY(-1px);
+			}
+			.btn-secondary {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 12px 24px;
+				border-radius: 10px;
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--text);
+				font-size: 15px;
+				font-weight: 500;
+				text-decoration: none;
+				transition:
+					border-color 0.2s,
+					background 0.2s;
+			}
+			.btn-secondary:hover {
+				border-color: var(--muted);
+				background: rgba(255, 255, 255, 0.03);
+			}
 
-    /* ── App mockup ── */
-    .mockup-wrap {
-      margin-top: 72px; width: 100%; max-width: 960px;
-      position: relative;
-    }
-    .mockup-glow {
-      position: absolute; inset: -40px;
-      background: radial-gradient(ellipse at center bottom, rgba(99,102,241,0.18) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .mockup {
-      width: 100%; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      overflow: hidden;
-      box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
-    }
-    .mockup img {
-      width: 100%; display: block;
-    }
+			/* ── App mockup ── */
+			.mockup-wrap {
+				margin-top: 72px;
+				width: 100%;
+				max-width: 960px;
+				position: relative;
+			}
+			.mockup-glow {
+				position: absolute;
+				inset: -40px;
+				background: radial-gradient(
+					ellipse at center bottom,
+					rgba(99, 102, 241, 0.18) 0%,
+					transparent 65%
+				);
+				pointer-events: none;
+			}
+			.mockup {
+				width: 100%;
+				border-radius: 14px;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				overflow: hidden;
+				box-shadow:
+					0 40px 120px rgba(0, 0, 0, 0.7),
+					0 0 0 1px rgba(255, 255, 255, 0.04);
+			}
+			.mockup img {
+				width: 100%;
+				display: block;
+			}
 
-    /* ── Screenshot Carousel ── */
-    .screenshots-section { padding: 100px 24px 80px; }
-    .carousel-container {
-      max-width: 1100px; margin: 0 auto;
-      position: relative; overflow: hidden;
-    }
-    .carousel-track {
-      display: flex;
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .carousel-slide {
-      min-width: 100%;
-      padding: 0 40px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .carousel-slide img {
-      width: 100%; max-width: 900px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .carousel-caption {
-      margin-top: 20px; text-align: center;
-    }
-    .carousel-caption h3 {
-      font-size: 18px; font-weight: 600; color: var(--bright); margin-bottom: 4px;
-    }
-    .carousel-caption p {
-      font-size: 14px; color: var(--subtle);
-    }
+			/* ── Screenshot Carousel ── */
+			.screenshots-section {
+				padding: 100px 24px 80px;
+			}
+			.carousel-container {
+				max-width: 1100px;
+				margin: 0 auto;
+				position: relative;
+				overflow: hidden;
+			}
+			.carousel-track {
+				display: flex;
+				transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			.carousel-slide {
+				min-width: 100%;
+				padding: 0 40px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.carousel-slide img {
+				width: 100%;
+				max-width: 900px;
+				border-radius: 14px;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+			}
+			.carousel-caption {
+				margin-top: 20px;
+				text-align: center;
+			}
+			.carousel-caption h3 {
+				font-size: 18px;
+				font-weight: 600;
+				color: var(--bright);
+				margin-bottom: 4px;
+			}
+			.carousel-caption p {
+				font-size: 14px;
+				color: var(--subtle);
+			}
 
-    .carousel-nav {
-      display: flex; justify-content: center; gap: 10px;
-      margin-top: 32px;
-    }
-    .carousel-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--border); border: none; cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-      padding: 0;
-    }
-    .carousel-dot.active { background: var(--violet); transform: scale(1.2); }
-    .carousel-dot:hover { background: var(--muted); }
+			.carousel-nav {
+				display: flex;
+				justify-content: center;
+				gap: 10px;
+				margin-top: 32px;
+			}
+			.carousel-dot {
+				width: 10px;
+				height: 10px;
+				border-radius: 50%;
+				background: var(--border);
+				border: none;
+				cursor: pointer;
+				transition:
+					background 0.3s,
+					transform 0.2s;
+				padding: 0;
+			}
+			.carousel-dot.active {
+				background: var(--violet);
+				transform: scale(1.2);
+			}
+			.carousel-dot:hover {
+				background: var(--muted);
+			}
 
-    .carousel-arrow {
-      position: absolute; top: 50%; transform: translateY(-80%);
-      width: 44px; height: 44px; border-radius: 50%;
-      background: rgba(17,17,19,0.9); border: 1px solid var(--border);
-      color: var(--text); font-size: 20px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.2s, border-color 0.2s;
-      z-index: 2;
-    }
-    .carousel-arrow:hover { background: var(--surface); border-color: var(--muted); }
-    .carousel-arrow.prev { left: 0; }
-    .carousel-arrow.next { right: 0; }
+			.carousel-arrow {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-80%);
+				width: 44px;
+				height: 44px;
+				border-radius: 50%;
+				background: rgba(17, 17, 19, 0.9);
+				border: 1px solid var(--border);
+				color: var(--text);
+				font-size: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				transition:
+					background 0.2s,
+					border-color 0.2s;
+				z-index: 2;
+			}
+			.carousel-arrow:hover {
+				background: var(--surface);
+				border-color: var(--muted);
+			}
+			.carousel-arrow.prev {
+				left: 0;
+			}
+			.carousel-arrow.next {
+				right: 0;
+			}
 
-    /* ── Sections ── */
-    section { padding: 100px 24px; }
-    .section-label {
-      display: block; text-align: center;
-      font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--violet);
-      margin-bottom: 12px;
-    }
-    section h2 {
-      font-size: clamp(28px, 4vw, 44px); font-weight: 700;
-      text-align: center; letter-spacing: -0.02em;
-      color: var(--bright); margin-bottom: 16px;
-    }
-    section > p {
-      text-align: center; color: var(--subtle); max-width: 520px;
-      margin: 0 auto 64px; font-size: 16px; line-height: 1.65;
-    }
+			/* ── Sections ── */
+			section {
+				padding: 100px 24px;
+			}
+			.section-label {
+				display: block;
+				text-align: center;
+				font-size: 12px;
+				font-weight: 600;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: var(--violet);
+				margin-bottom: 12px;
+			}
+			section h2 {
+				font-size: clamp(28px, 4vw, 44px);
+				font-weight: 700;
+				text-align: center;
+				letter-spacing: -0.02em;
+				color: var(--bright);
+				margin-bottom: 16px;
+			}
+			section > p {
+				text-align: center;
+				color: var(--subtle);
+				max-width: 520px;
+				margin: 0 auto 64px;
+				font-size: 16px;
+				line-height: 1.65;
+			}
 
-    /* ── Features ── */
-    .features {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px; max-width: 1100px; margin: 0 auto;
-    }
-    .feature-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 28px;
-      transition: border-color 0.25s, transform 0.2s;
-    }
-    .feature-card:hover { border-color: rgba(139,92,246,0.4); transform: translateY(-2px); }
-    .feature-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 18px; font-size: 20px;
-    }
-    .feature-card h3 { font-size: 16px; font-weight: 600; color: var(--bright); margin-bottom: 8px; }
-    .feature-card p  { font-size: 14px; color: var(--subtle); line-height: 1.65; }
+			/* ── Features ── */
+			.features {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 20px;
+				max-width: 1100px;
+				margin: 0 auto;
+			}
+			.feature-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 16px;
+				padding: 28px;
+				transition:
+					border-color 0.25s,
+					transform 0.2s;
+			}
+			.feature-card:hover {
+				border-color: rgba(139, 92, 246, 0.4);
+				transform: translateY(-2px);
+			}
+			.feature-icon {
+				width: 44px;
+				height: 44px;
+				border-radius: 12px;
+				background: rgba(99, 102, 241, 0.12);
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 18px;
+				font-size: 20px;
+			}
+			.feature-card h3 {
+				font-size: 16px;
+				font-weight: 600;
+				color: var(--bright);
+				margin-bottom: 8px;
+			}
+			.feature-card p {
+				font-size: 14px;
+				color: var(--subtle);
+				line-height: 1.65;
+			}
 
-    /* ── Roadmap ── */
-    .roadmap-section {
-      background: linear-gradient(180deg, var(--bg) 0%, rgba(99,102,241,0.04) 50%, var(--bg) 100%);
-    }
-    .roadmap-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px; max-width: 1100px; margin: 0 auto;
-    }
-    .roadmap-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 28px;
-      position: relative; overflow: hidden;
-      transition: border-color 0.25s;
-    }
-    .roadmap-card:hover { border-color: rgba(139,92,246,0.3); }
-    .roadmap-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 100px;
-      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25);
-      font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--violet-l);
-      margin-bottom: 14px;
-    }
-    .roadmap-card h3 { font-size: 16px; font-weight: 600; color: var(--bright); margin-bottom: 8px; }
-    .roadmap-card p  { font-size: 14px; color: var(--subtle); line-height: 1.65; }
-    .roadmap-icon { font-size: 20px; margin-bottom: 12px; display: block; }
+			/* ── Roadmap ── */
+			.roadmap-section {
+				background: linear-gradient(
+					180deg,
+					var(--bg) 0%,
+					rgba(99, 102, 241, 0.04) 50%,
+					var(--bg) 100%
+				);
+			}
+			.roadmap-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 20px;
+				max-width: 1100px;
+				margin: 0 auto;
+			}
+			.roadmap-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 16px;
+				padding: 28px;
+				position: relative;
+				overflow: hidden;
+				transition: border-color 0.25s;
+			}
+			.roadmap-card:hover {
+				border-color: rgba(139, 92, 246, 0.3);
+			}
+			.roadmap-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 5px;
+				padding: 3px 10px;
+				border-radius: 100px;
+				background: rgba(139, 92, 246, 0.12);
+				border: 1px solid rgba(139, 92, 246, 0.25);
+				font-size: 10px;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--violet-l);
+				margin-bottom: 14px;
+			}
+			.roadmap-card h3 {
+				font-size: 16px;
+				font-weight: 600;
+				color: var(--bright);
+				margin-bottom: 8px;
+			}
+			.roadmap-card p {
+				font-size: 14px;
+				color: var(--subtle);
+				line-height: 1.65;
+			}
+			.roadmap-icon {
+				font-size: 20px;
+				margin-bottom: 12px;
+				display: block;
+			}
 
-    /* ── Download ── */
-    .download-section {
-      background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);
-      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    }
-    .download-grid {
-      display: flex; flex-wrap: wrap; gap: 16px;
-      justify-content: center; max-width: 800px; margin: 0 auto;
-    }
-    .dl-btn {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 24px; border-radius: 12px;
-      background: var(--surface); border: 1px solid var(--border);
-      text-decoration: none; transition: border-color 0.2s, background 0.2s;
-      min-width: 200px;
-    }
-    .dl-btn:hover { border-color: var(--violet); background: rgba(139,92,246,0.06); }
-    .dl-btn-icon { font-size: 28px; line-height: 1; }
-    .dl-btn-text { display: flex; flex-direction: column; }
-    .dl-btn-sub { font-size: 11px; color: var(--muted); }
-    .dl-btn-name { font-size: 15px; font-weight: 600; color: var(--bright); }
+			/* ── Download ── */
+			.download-section {
+				background: linear-gradient(
+					135deg,
+					rgba(99, 102, 241, 0.08) 0%,
+					rgba(139, 92, 246, 0.04) 100%
+				);
+				border-top: 1px solid var(--border);
+				border-bottom: 1px solid var(--border);
+			}
+			.download-grid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 16px;
+				justify-content: center;
+				max-width: 800px;
+				margin: 0 auto;
+			}
+			.dl-btn {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 16px 24px;
+				border-radius: 12px;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				text-decoration: none;
+				transition:
+					border-color 0.2s,
+					background 0.2s;
+				min-width: 200px;
+			}
+			.dl-btn:hover {
+				border-color: var(--violet);
+				background: rgba(139, 92, 246, 0.06);
+			}
+			.dl-btn-icon {
+				font-size: 28px;
+				line-height: 1;
+			}
+			.dl-btn-text {
+				display: flex;
+				flex-direction: column;
+			}
+			.dl-btn-sub {
+				font-size: 11px;
+				color: var(--muted);
+			}
+			.dl-btn-name {
+				font-size: 15px;
+				font-weight: 600;
+				color: var(--bright);
+			}
 
-    /* ── Support ── */
-    .support-section {
-      text-align: center;
-    }
-    .support-section .coffee-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 28px; border-radius: 12px;
-      background: linear-gradient(135deg, #ff813f, #ff5f5f);
-      color: #fff; font-size: 16px; font-weight: 600;
-      text-decoration: none; transition: opacity 0.2s, transform 0.15s;
-      box-shadow: 0 4px 20px rgba(255,129,63,0.3);
-    }
-    .support-section .coffee-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+			/* ── Support ── */
+			.support-section {
+				text-align: center;
+			}
+			.support-section .coffee-btn {
+				display: inline-flex;
+				align-items: center;
+				gap: 10px;
+				padding: 14px 28px;
+				border-radius: 12px;
+				background: linear-gradient(135deg, #ff813f, #ff5f5f);
+				color: #fff;
+				font-size: 16px;
+				font-weight: 600;
+				text-decoration: none;
+				transition:
+					opacity 0.2s,
+					transform 0.15s;
+				box-shadow: 0 4px 20px rgba(255, 129, 63, 0.3);
+			}
+			.support-section .coffee-btn:hover {
+				opacity: 0.9;
+				transform: translateY(-1px);
+			}
 
-    /* ── Footer ── */
-    footer {
-      padding: 48px 24px; text-align: center;
-      border-top: 1px solid var(--border);
-    }
-    footer .footer-logo {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 16px;
-    }
-    footer p { font-size: 13px; color: var(--muted); }
-    footer a { color: var(--subtle); text-decoration: none; }
-    footer a:hover { color: var(--text); }
+			/* ── Footer ── */
+			footer {
+				padding: 48px 24px;
+				text-align: center;
+				border-top: 1px solid var(--border);
+			}
+			footer .footer-logo {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				font-size: 14px;
+				font-weight: 600;
+				color: var(--text);
+				margin-bottom: 16px;
+			}
+			footer p {
+				font-size: 13px;
+				color: var(--muted);
+			}
+			footer a {
+				color: var(--subtle);
+				text-decoration: none;
+			}
+			footer a:hover {
+				color: var(--text);
+			}
 
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      nav { padding: 12px 20px; }
-      .nav-links { display: none; }
-      .hero { padding: 100px 20px 60px; }
-      .carousel-slide { padding: 0 12px; }
-      .carousel-arrow { display: none; }
-    }
-  </style>
-</head>
-<body>
+			/* ── Responsive ── */
+			@media (max-width: 640px) {
+				nav {
+					padding: 12px 20px;
+				}
+				.nav-links {
+					display: none;
+				}
+				.hero {
+					padding: 100px 20px 60px;
+				}
+				.carousel-slide {
+					padding: 0 12px;
+				}
+				.carousel-arrow {
+					display: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<!-- ── Navigation ── -->
+		<nav>
+			<a class="nav-logo" href="#">
+				<svg
+					width="28"
+					height="28"
+					viewBox="0 0 100 100"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<rect width="100" height="100" rx="22" fill="#09090b" />
+					<path
+						d="M50,50 C50,37 41,28 28,28 C15,28 2,37 2,50 C2,63 15,72 28,72 C41,72 50,63 50,50 C50,37 59,28 72,28 C85,28 98,37 98,50 C98,63 85,72 72,72 C59,72 50,63 50,50 Z"
+						stroke="url(#navGrad)"
+						stroke-width="9"
+						fill="none"
+						stroke-linecap="round"
+					/>
+					<defs>
+						<linearGradient
+							id="navGrad"
+							x1="2"
+							y1="50"
+							x2="98"
+							y2="50"
+							gradientUnits="userSpaceOnUse"
+						>
+							<stop stop-color="#6366f1" />
+							<stop offset="0.5" stop-color="#a78bfa" />
+							<stop offset="1" stop-color="#6366f1" />
+						</linearGradient>
+					</defs>
+				</svg>
+				Infinite Monitor
+			</a>
+			<div class="nav-links">
+				<a href="#features">Features</a>
+				<a href="#screenshots">Screenshots</a>
+				<a href="#roadmap">Roadmap</a>
+				<a href="#download">Download</a>
+				<a
+					href="https://github.com/mehdiraized/infinite-monitor-desktop"
+					target="_blank"
+					>GitHub</a
+				>
+			</div>
+			<a
+				class="nav-cta"
+				href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest"
+				target="_blank"
+				>Download Free</a
+			>
+		</nav>
 
-<!-- ── Navigation ── -->
-<nav>
-  <a class="nav-logo" href="#">
-    <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100" height="100" rx="22" fill="#09090b"/>
-      <path d="M50,50 C50,37 41,28 28,28 C15,28 2,37 2,50 C2,63 15,72 28,72 C41,72 50,63 50,50 C50,37 59,28 72,28 C85,28 98,37 98,50 C98,63 85,72 72,72 C59,72 50,63 50,50 Z"
-        stroke="url(#navGrad)" stroke-width="9" fill="none" stroke-linecap="round"/>
-      <defs>
-        <linearGradient id="navGrad" x1="2" y1="50" x2="98" y2="50" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#6366f1"/>
-          <stop offset="0.5" stop-color="#a78bfa"/>
-          <stop offset="1" stop-color="#6366f1"/>
-        </linearGradient>
-      </defs>
-    </svg>
-    Infinite Monitor
-  </a>
-  <div class="nav-links">
-    <a href="#features">Features</a>
-    <a href="#screenshots">Screenshots</a>
-    <a href="#roadmap">Roadmap</a>
-    <a href="#download">Download</a>
-    <a href="https://github.com/mehdiraized/infinite-monitor-desktop" target="_blank">GitHub</a>
-  </div>
-  <a class="nav-cta" href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest" target="_blank">Download Free</a>
-</nav>
+		<!-- ── Hero ── -->
+		<section class="hero">
+			<div class="hero-glow"></div>
 
-<!-- ── Hero ── -->
-<section class="hero">
-  <div class="hero-glow"></div>
+			<div class="badge">
+				<span class="badge-dot"></span>
+				Open Source &amp; Free Forever
+			</div>
 
-  <div class="badge">
-    <span class="badge-dot"></span>
-    Open Source &amp; Free Forever
-  </div>
+			<h1>Your AI Dashboard,<br />Yours to Own</h1>
 
-  <h1>Your AI Dashboard,<br>Yours to Own</h1>
+			<p>
+				Build powerful AI-powered dashboards that monitor crypto, markets, news
+				and anything else — running entirely on your machine, offline-capable,
+				no cloud required.
+			</p>
 
-  <p>
-    Build powerful AI-powered dashboards that monitor crypto, markets, news and anything else —
-    running entirely on your machine, offline-capable, no cloud required.
-  </p>
+			<div class="hero-actions">
+				<a
+					class="btn-primary"
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest"
+					target="_blank"
+				>
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+						<path
+							d="M8 1v9M4.5 6.5l3.5 3.5 3.5-3.5M2 13h12"
+							stroke="currentColor"
+							stroke-width="1.6"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+					Download for Free
+				</a>
+				<a
+					class="btn-secondary"
+					href="https://github.com/mehdiraized/infinite-monitor-desktop"
+					target="_blank"
+				>
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+						<path
+							d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+						/>
+					</svg>
+					View on GitHub
+				</a>
+			</div>
 
-  <div class="hero-actions">
-    <a class="btn-primary" href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest" target="_blank">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M4.5 6.5l3.5 3.5 3.5-3.5M2 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Download for Free
-    </a>
-    <a class="btn-secondary" href="https://github.com/mehdiraized/infinite-monitor-desktop" target="_blank">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
-    </a>
-  </div>
+			<!-- App screenshot -->
+			<div class="mockup-wrap">
+				<div class="mockup-glow"></div>
+				<div class="mockup">
+					<img
+						src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg"
+						alt="Infinite Monitor — AI-Powered Dashboard"
+					/>
+				</div>
+			</div>
+		</section>
 
-  <!-- App screenshot -->
-  <div class="mockup-wrap">
-    <div class="mockup-glow"></div>
-    <div class="mockup">
-      <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/main-app.jpg" alt="Infinite Monitor — AI-Powered Dashboard">
-    </div>
-  </div>
-</section>
+		<!-- ── Features ── -->
+		<section id="features">
+			<span class="section-label">Why Infinite Monitor</span>
+			<h2>Everything you need,<br />nothing you don't</h2>
+			<p>
+				A clean, powerful dashboard builder that respects your privacy and works
+				the way you do.
+			</p>
 
-<!-- ── Features ── -->
-<section id="features">
-  <span class="section-label">Why Infinite Monitor</span>
-  <h2>Everything you need,<br>nothing you don't</h2>
-  <p>A clean, powerful dashboard builder that respects your privacy and works the way you do.</p>
+			<div class="features">
+				<div class="feature-card">
+					<div class="feature-icon">🤖</div>
+					<h3>AI-Powered Widgets</h3>
+					<p>
+						Connect to free AI providers — xAI Grok, Google Gemini, OpenRouter,
+						or any custom API. Build widgets that analyze data, generate charts,
+						and respond intelligently.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🧠</div>
+					<h3>Built-in AI Chat</h3>
+					<p>
+						Chat with AI directly inside the app. Ask questions, get analysis,
+						generate new widgets — all without leaving your dashboard.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🔗</div>
+					<h3>MCP Integration</h3>
+					<p>
+						Model Context Protocol support for advanced AI workflows, connecting
+						widgets to external tools and web search capabilities.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">📡</div>
+					<h3>Real-Time Data</h3>
+					<p>
+						Monitor crypto prices, stock markets, RSS feeds, weather, and any
+						custom API — all updating live on your dashboard.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">♾️</div>
+					<h3>Infinite Canvas</h3>
+					<p>
+						Unlimited canvas with freeform drag-and-drop. Arrange, resize, and
+						zoom widgets exactly how you want with smooth 60fps.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">📊</div>
+					<h3>Multiple Dashboards</h3>
+					<p>
+						Create unlimited dashboards for different use cases — crypto
+						trading, news monitoring, project tracking — switch instantly.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🔌</div>
+					<h3>Works Offline</h3>
+					<p>
+						Built-in Service Worker caches up to 200 MB of data for 30 days.
+						Your dashboard keeps working even when the internet doesn't.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">📦</div>
+					<h3>Template Gallery</h3>
+					<p>
+						Get started in seconds with pre-built dashboard templates — Crypto
+						Trader, Market Watch, and more. One click to apply.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🔒</div>
+					<h3>Private by Design</h3>
+					<p>
+						Everything runs locally on your machine. No accounts, no cloud sync,
+						no tracking, no telemetry. Your data stays yours.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🔑</div>
+					<h3>API Key Management</h3>
+					<p>
+						Manage all your AI provider keys from a dedicated Settings panel.
+						Add, edit, and remove keys for any provider securely.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">⚡</div>
+					<h3>Native &amp; Fast</h3>
+					<p>
+						macOS traffic-light controls, keyboard shortcuts, system menu,
+						frameless window design — a true native desktop experience.
+					</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🌐</div>
+					<h3>Cross-Platform</h3>
+					<p>
+						Available for macOS (Intel &amp; Apple Silicon), Windows (x64), and
+						Linux (AppImage &amp; .deb). Same great experience everywhere.
+					</p>
+				</div>
+			</div>
+		</section>
 
-  <div class="features">
-    <div class="feature-card">
-      <div class="feature-icon">🤖</div>
-      <h3>AI-Powered Widgets</h3>
-      <p>Connect to free AI providers — xAI Grok, Google Gemini, OpenRouter, or any custom API. Build widgets that analyze data, generate charts, and respond intelligently.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧠</div>
-      <h3>Built-in AI Chat</h3>
-      <p>Chat with AI directly inside the app. Ask questions, get analysis, generate new widgets — all without leaving your dashboard.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔗</div>
-      <h3>MCP Integration</h3>
-      <p>Model Context Protocol support for advanced AI workflows, connecting widgets to external tools and web search capabilities.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📡</div>
-      <h3>Real-Time Data</h3>
-      <p>Monitor crypto prices, stock markets, RSS feeds, weather, and any custom API — all updating live on your dashboard.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">♾️</div>
-      <h3>Infinite Canvas</h3>
-      <p>Unlimited canvas with freeform drag-and-drop. Arrange, resize, and zoom widgets exactly how you want with smooth 60fps.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <h3>Multiple Dashboards</h3>
-      <p>Create unlimited dashboards for different use cases — crypto trading, news monitoring, project tracking — switch instantly.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔌</div>
-      <h3>Works Offline</h3>
-      <p>Built-in Service Worker caches up to 200 MB of data for 30 days. Your dashboard keeps working even when the internet doesn't.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📦</div>
-      <h3>Template Gallery</h3>
-      <p>Get started in seconds with pre-built dashboard templates — Crypto Trader, Market Watch, and more. One click to apply.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔒</div>
-      <h3>Private by Design</h3>
-      <p>Everything runs locally on your machine. No accounts, no cloud sync, no tracking, no telemetry. Your data stays yours.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔑</div>
-      <h3>API Key Management</h3>
-      <p>Manage all your AI provider keys from a dedicated Settings panel. Add, edit, and remove keys for any provider securely.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <h3>Native &amp; Fast</h3>
-      <p>macOS traffic-light controls, keyboard shortcuts, system menu, frameless window design — a true native desktop experience.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌐</div>
-      <h3>Cross-Platform</h3>
-      <p>Available for macOS (Intel &amp; Apple Silicon), Windows (x64), and Linux (AppImage &amp; .deb). Same great experience everywhere.</p>
-    </div>
-  </div>
-</section>
+		<!-- ── Screenshots ── -->
+		<section id="screenshots" class="screenshots-section">
+			<span class="section-label">See it in action</span>
+			<h2>Built for power users</h2>
+			<p>Every detail designed for speed, flexibility, and beauty.</p>
 
-<!-- ── Screenshots ── -->
-<section id="screenshots" class="screenshots-section">
-  <span class="section-label">See it in action</span>
-  <h2>Built for power users</h2>
-  <p>Every detail designed for speed, flexibility, and beauty.</p>
+			<div class="carousel-container">
+				<button
+					class="carousel-arrow prev"
+					onclick="carouselPrev()"
+					aria-label="Previous slide"
+				>
+					‹
+				</button>
+				<button
+					class="carousel-arrow next"
+					onclick="carouselNext()"
+					aria-label="Next slide"
+				>
+					›
+				</button>
 
-  <div class="carousel-container">
-    <button class="carousel-arrow prev" onclick="carouselPrev()" aria-label="Previous slide">‹</button>
-    <button class="carousel-arrow next" onclick="carouselNext()" aria-label="Next slide">›</button>
+				<div class="carousel-track" id="carouselTrack">
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/dashboards.jpg"
+							alt="Multiple Dashboards"
+						/>
+						<div class="carousel-caption">
+							<h3>Multiple Dashboards</h3>
+							<p>
+								Create unlimited dashboards for different workflows and switch
+								between them instantly
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/add-widget.jpg"
+							alt="Add Widget"
+						/>
+						<div class="carousel-caption">
+							<h3>Add Widgets with AI</h3>
+							<p>
+								Describe what you need and AI builds the widget for you — or
+								choose from templates
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/models.jpg"
+							alt="AI Model Selection"
+						/>
+						<div class="carousel-caption">
+							<h3>Choose Your AI Model</h3>
+							<p>
+								xAI Grok, Google Gemini, OpenRouter, and custom providers —
+								bring your own API keys
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/mcp.jpg"
+							alt="MCP Integration"
+						/>
+						<div class="carousel-caption">
+							<h3>MCP Integration</h3>
+							<p>
+								Connect to Model Context Protocol for advanced AI workflows and
+								external tool access
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/setting.jpg"
+							alt="Settings"
+						/>
+						<div class="carousel-caption">
+							<h3>Settings &amp; API Keys</h3>
+							<p>
+								Manage your API keys, themes, and preferences from a clean
+								settings panel
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-1.jpg"
+							alt="Onboarding — Welcome"
+						/>
+						<div class="carousel-caption">
+							<h3>Guided Onboarding</h3>
+							<p>
+								A beautiful 3-step intro gets new users up and running in
+								seconds
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-2.jpg"
+							alt="Onboarding — Canvas"
+						/>
+						<div class="carousel-caption">
+							<h3>Drag, Drop, Done</h3>
+							<p>
+								Infinite canvas with freeform drag-and-drop, resize, and zoom
+								controls
+							</p>
+						</div>
+					</div>
+					<div class="carousel-slide">
+						<img
+							src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-3.jpg"
+							alt="Onboarding — AI Providers"
+						/>
+						<div class="carousel-caption">
+							<h3>Free AI Providers</h3>
+							<p>
+								Connect to free AI services with your own API keys — no
+								subscription required
+							</p>
+						</div>
+					</div>
+				</div>
 
-    <div class="carousel-track" id="carouselTrack">
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/dashboards.jpg" alt="Multiple Dashboards">
-        <div class="carousel-caption">
-          <h3>Multiple Dashboards</h3>
-          <p>Create unlimited dashboards for different workflows and switch between them instantly</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/add-widget.jpg" alt="Add Widget">
-        <div class="carousel-caption">
-          <h3>Add Widgets with AI</h3>
-          <p>Describe what you need and AI builds the widget for you — or choose from templates</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/models.jpg" alt="AI Model Selection">
-        <div class="carousel-caption">
-          <h3>Choose Your AI Model</h3>
-          <p>xAI Grok, Google Gemini, OpenRouter, and custom providers — bring your own API keys</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/mcp.jpg" alt="MCP Integration">
-        <div class="carousel-caption">
-          <h3>MCP Integration</h3>
-          <p>Connect to Model Context Protocol for advanced AI workflows and external tool access</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/setting.jpg" alt="Settings">
-        <div class="carousel-caption">
-          <h3>Settings &amp; API Keys</h3>
-          <p>Manage your API keys, themes, and preferences from a clean settings panel</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-1.jpg" alt="Onboarding — Welcome">
-        <div class="carousel-caption">
-          <h3>Guided Onboarding</h3>
-          <p>A beautiful 3-step intro gets new users up and running in seconds</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-2.jpg" alt="Onboarding — Canvas">
-        <div class="carousel-caption">
-          <h3>Drag, Drop, Done</h3>
-          <p>Infinite canvas with freeform drag-and-drop, resize, and zoom controls</p>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <img src="https://raw.githubusercontent.com/mehdiraized/infinite-monitor-desktop/main/assets/screen-shots/intro-3.jpg" alt="Onboarding — AI Providers">
-        <div class="carousel-caption">
-          <h3>Free AI Providers</h3>
-          <p>Connect to free AI services with your own API keys — no subscription required</p>
-        </div>
-      </div>
-    </div>
+				<div class="carousel-nav" id="carouselNav"></div>
+			</div>
+		</section>
 
-    <div class="carousel-nav" id="carouselNav"></div>
-  </div>
-</section>
+		<!-- ── Roadmap ── -->
+		<section id="roadmap" class="roadmap-section">
+			<span class="section-label">Roadmap</span>
+			<h2>What's coming next</h2>
+			<p>We're just getting started. Here's what we're building.</p>
 
-<!-- ── Roadmap ── -->
-<section id="roadmap" class="roadmap-section">
-  <span class="section-label">Roadmap</span>
-  <h2>What's coming next</h2>
-  <p>We're just getting started. Here's what we're building.</p>
+			<div class="roadmap-grid">
+				<div class="roadmap-card">
+					<span class="roadmap-icon">🧠</span>
+					<span class="roadmap-badge">Coming Soon</span>
+					<h3>AI Optimization</h3>
+					<p>
+						A <strong>$5/month subscription</strong> that gives all users access
+						to optimized AI — build and improve widgets effortlessly, no API
+						keys needed.
+					</p>
+				</div>
+				<div class="roadmap-card">
+					<span class="roadmap-icon">🗄️</span>
+					<span class="roadmap-badge">Coming Soon</span>
+					<h3>Advanced Widgets</h3>
+					<p>
+						Widgets with their own <strong>database structures</strong>,
+						<strong>API endpoints</strong>, and
+						<strong>cross-device communication</strong> — turning dashboards
+						into a full platform.
+					</p>
+				</div>
+				<div class="roadmap-card">
+					<span class="roadmap-icon">📤</span>
+					<span class="roadmap-badge">Coming Soon</span>
+					<h3>Import &amp; Export</h3>
+					<p>
+						<strong>Export</strong> your widgets and dashboards to share with
+						others, or <strong>import</strong> community-created widgets with a
+						single click.
+					</p>
+				</div>
+				<div class="roadmap-card">
+					<span class="roadmap-icon">🏪</span>
+					<span class="roadmap-badge">Coming Soon</span>
+					<h3>Widget Marketplace</h3>
+					<p>
+						A marketplace where users can
+						<strong>share, discover, and sell</strong> widgets. Plus a curated
+						collection of <strong>Pro widgets</strong>.
+					</p>
+				</div>
+				<div class="roadmap-card">
+					<span class="roadmap-icon">💎</span>
+					<span class="roadmap-badge">Coming Soon</span>
+					<h3>Pro Subscription</h3>
+					<p>
+						Unlock <strong>Pro widgets</strong>, marketplace access, and
+						<strong>free AI credits</strong> for widget creation — the best way
+						to use Infinite Monitor.
+					</p>
+				</div>
+			</div>
+		</section>
 
-  <div class="roadmap-grid">
-    <div class="roadmap-card">
-      <span class="roadmap-icon">🧠</span>
-      <span class="roadmap-badge">Coming Soon</span>
-      <h3>AI Optimization</h3>
-      <p>A <strong>$5/month subscription</strong> that gives all users access to optimized AI — build and improve widgets effortlessly, no API keys needed.</p>
-    </div>
-    <div class="roadmap-card">
-      <span class="roadmap-icon">🗄️</span>
-      <span class="roadmap-badge">Coming Soon</span>
-      <h3>Advanced Widgets</h3>
-      <p>Widgets with their own <strong>database structures</strong>, <strong>API endpoints</strong>, and <strong>cross-device communication</strong> — turning dashboards into a full platform.</p>
-    </div>
-    <div class="roadmap-card">
-      <span class="roadmap-icon">📤</span>
-      <span class="roadmap-badge">Coming Soon</span>
-      <h3>Import &amp; Export</h3>
-      <p><strong>Export</strong> your widgets and dashboards to share with others, or <strong>import</strong> community-created widgets with a single click.</p>
-    </div>
-    <div class="roadmap-card">
-      <span class="roadmap-icon">🏪</span>
-      <span class="roadmap-badge">Coming Soon</span>
-      <h3>Widget Marketplace</h3>
-      <p>A marketplace where users can <strong>share, discover, and sell</strong> widgets. Plus a curated collection of <strong>Pro widgets</strong>.</p>
-    </div>
-    <div class="roadmap-card">
-      <span class="roadmap-icon">💎</span>
-      <span class="roadmap-badge">Coming Soon</span>
-      <h3>Pro Subscription</h3>
-      <p>Unlock <strong>Pro widgets</strong>, marketplace access, and <strong>free AI credits</strong> for widget creation — the best way to use Infinite Monitor.</p>
-    </div>
-  </div>
-</section>
+		<!-- ── Download ── -->
+		<section id="download" class="download-section">
+			<span class="section-label">Get Started</span>
+			<h2>Download for free</h2>
+			<p>Available for macOS, Windows, and Linux. No sign-up required.</p>
 
-<!-- ── Download ── -->
-<section id="download" class="download-section">
-  <span class="section-label">Get Started</span>
-  <h2>Download for free</h2>
-  <p>Available for macOS, Windows, and Linux. No sign-up required.</p>
+			<div class="download-grid">
+				<a
+					class="dl-btn"
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest"
+					target="_blank"
+				>
+					<span class="dl-btn-icon"></span>
+					<span class="dl-btn-text">
+						<span class="dl-btn-sub">Download for</span>
+						<span class="dl-btn-name">macOS</span>
+					</span>
+				</a>
+				<a
+					class="dl-btn"
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest"
+					target="_blank"
+				>
+					<span class="dl-btn-icon">🪟</span>
+					<span class="dl-btn-text">
+						<span class="dl-btn-sub">Download for</span>
+						<span class="dl-btn-name">Windows</span>
+					</span>
+				</a>
+				<a
+					class="dl-btn"
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest"
+					target="_blank"
+				>
+					<span class="dl-btn-icon">🐧</span>
+					<span class="dl-btn-text">
+						<span class="dl-btn-sub">Download for</span>
+						<span class="dl-btn-name">Linux</span>
+					</span>
+				</a>
+			</div>
 
-  <div class="download-grid">
-    <a class="dl-btn" href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest" target="_blank">
-      <span class="dl-btn-icon"></span>
-      <span class="dl-btn-text">
-        <span class="dl-btn-sub">Download for</span>
-        <span class="dl-btn-name">macOS</span>
-      </span>
-    </a>
-    <a class="dl-btn" href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest" target="_blank">
-      <span class="dl-btn-icon">🪟</span>
-      <span class="dl-btn-text">
-        <span class="dl-btn-sub">Download for</span>
-        <span class="dl-btn-name">Windows</span>
-      </span>
-    </a>
-    <a class="dl-btn" href="https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest" target="_blank">
-      <span class="dl-btn-icon">🐧</span>
-      <span class="dl-btn-text">
-        <span class="dl-btn-sub">Download for</span>
-        <span class="dl-btn-name">Linux</span>
-      </span>
-    </a>
-  </div>
+			<p style="margin-top: 32px; font-size: 13px; color: var(--muted)">
+				Or
+				<a
+					href="https://github.com/mehdiraized/infinite-monitor-desktop"
+					style="color: var(--subtle)"
+					>build from source</a
+				>
+				on GitHub. Free and open-source under the MIT license.
+			</p>
+		</section>
 
-  <p style="margin-top:32px; font-size:13px; color:var(--muted)">
-    Or <a href="https://github.com/mehdiraized/infinite-monitor-desktop" style="color:var(--subtle)">build from source</a> on GitHub.
-    Free and open-source under the MIT license.
-  </p>
-</section>
+		<!-- ── Support ── -->
+		<section class="support-section">
+			<span class="section-label">Support</span>
+			<h2>Love Infinite Monitor?</h2>
+			<p>
+				If you find this project useful, consider supporting its development.
+			</p>
+			<a
+				class="coffee-btn"
+				href="https://buymeacoffee.com/farobox"
+				target="_blank"
+			>
+				☕ Buy Me a Coffee
+			</a>
+		</section>
 
-<!-- ── Support ── -->
-<section class="support-section">
-  <span class="section-label">Support</span>
-  <h2>Love Infinite Monitor?</h2>
-  <p>If you find this project useful, consider supporting its development.</p>
-  <a class="coffee-btn" href="https://buymeacoffee.com/farobox" target="_blank">
-    ☕ Buy Me a Coffee
-  </a>
-</section>
+		<!-- ── Footer ── -->
+		<footer>
+			<div class="footer-logo">
+				<svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+					<path
+						d="M50,50 C50,37 41,28 28,28 C15,28 2,37 2,50 C2,63 15,72 28,72 C41,72 50,63 50,50 C50,37 59,28 72,28 C85,28 98,37 98,50 C98,63 85,72 72,72 C59,72 50,63 50,50 Z"
+						stroke="url(#footGrad)"
+						stroke-width="9"
+						fill="none"
+					/>
+					<defs>
+						<linearGradient
+							id="footGrad"
+							x1="2"
+							y1="50"
+							x2="98"
+							y2="50"
+							gradientUnits="userSpaceOnUse"
+						>
+							<stop stop-color="#6366f1" />
+							<stop offset="1" stop-color="#a78bfa" />
+						</linearGradient>
+					</defs>
+				</svg>
+				Infinite Monitor
+			</div>
+			<p>
+				Open source under the
+				<a
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/blob/main/LICENSE"
+					>MIT License</a
+				>. Built on
+				<a href="https://github.com/homanp/infinite-monitor" target="_blank"
+					>Infinite Monitor</a
+				>
+				by homanp.
+			</p>
+			<p style="margin-top: 8px">
+				<a href="https://github.com/mehdiraized/infinite-monitor-desktop"
+					>GitHub</a
+				>
+				·
+				<a
+					href="https://github.com/mehdiraized/infinite-monitor-desktop/releases"
+					>Releases</a
+				>
+				·
+				<a href="https://github.com/mehdiraized/infinite-monitor-desktop/issues"
+					>Issues</a
+				>
+				·
+				<a href="https://buymeacoffee.com/farobox" target="_blank">Donate</a>
+			</p>
+		</footer>
 
-<!-- ── Footer ── -->
-<footer>
-  <div class="footer-logo">
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <path d="M50,50 C50,37 41,28 28,28 C15,28 2,37 2,50 C2,63 15,72 28,72 C41,72 50,63 50,50 C50,37 59,28 72,28 C85,28 98,37 98,50 C98,63 85,72 72,72 C59,72 50,63 50,50 Z"
-        stroke="url(#footGrad)" stroke-width="9" fill="none"/>
-      <defs>
-        <linearGradient id="footGrad" x1="2" y1="50" x2="98" y2="50" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#6366f1"/><stop offset="1" stop-color="#a78bfa"/>
-        </linearGradient>
-      </defs>
-    </svg>
-    Infinite Monitor
-  </div>
-  <p>
-    Open source under the <a href="https://github.com/mehdiraized/infinite-monitor-desktop/blob/main/LICENSE">MIT License</a>.
-    Built on <a href="https://github.com/homanp/infinite-monitor" target="_blank">Infinite Monitor</a> by homanp.
-  </p>
-  <p style="margin-top:8px">
-    <a href="https://github.com/mehdiraized/infinite-monitor-desktop">GitHub</a> ·
-    <a href="https://github.com/mehdiraized/infinite-monitor-desktop/releases">Releases</a> ·
-    <a href="https://github.com/mehdiraized/infinite-monitor-desktop/issues">Issues</a> ·
-    <a href="https://buymeacoffee.com/farobox" target="_blank">Donate</a>
-  </p>
-</footer>
+		<!-- ── Carousel JS ── -->
+		<script>
+			(function () {
+				"use strict";
+				var track = document.getElementById("carouselTrack");
+				var nav = document.getElementById("carouselNav");
+				var slides = track.querySelectorAll(".carousel-slide");
+				var total = slides.length;
+				var current = 0;
+				var autoTimer;
 
-<!-- ── Carousel JS ── -->
-<script>
-(function () {
-  'use strict';
-  var track = document.getElementById('carouselTrack');
-  var nav = document.getElementById('carouselNav');
-  var slides = track.querySelectorAll('.carousel-slide');
-  var total = slides.length;
-  var current = 0;
-  var autoTimer;
+				// Build dots
+				for (var i = 0; i < total; i++) {
+					var dot = document.createElement("button");
+					dot.className = "carousel-dot" + (i === 0 ? " active" : "");
+					dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+					dot.dataset.index = i;
+					dot.addEventListener("click", function () {
+						goTo(parseInt(this.dataset.index));
+					});
+					nav.appendChild(dot);
+				}
 
-  // Build dots
-  for (var i = 0; i < total; i++) {
-    var dot = document.createElement('button');
-    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-    dot.dataset.index = i;
-    dot.addEventListener('click', function () { goTo(parseInt(this.dataset.index)); });
-    nav.appendChild(dot);
-  }
+				function goTo(index) {
+					current = ((index % total) + total) % total;
+					track.style.transform = "translateX(-" + current * 100 + "%)";
+					var dots = nav.querySelectorAll(".carousel-dot");
+					for (var j = 0; j < dots.length; j++) {
+						dots[j].classList.toggle("active", j === current);
+					}
+					resetAuto();
+				}
 
-  function goTo(index) {
-    current = ((index % total) + total) % total;
-    track.style.transform = 'translateX(-' + (current * 100) + '%)';
-    var dots = nav.querySelectorAll('.carousel-dot');
-    for (var j = 0; j < dots.length; j++) {
-      dots[j].classList.toggle('active', j === current);
-    }
-    resetAuto();
-  }
+				function resetAuto() {
+					clearInterval(autoTimer);
+					autoTimer = setInterval(function () {
+						goTo(current + 1);
+					}, 5000);
+				}
 
-  function resetAuto() {
-    clearInterval(autoTimer);
-    autoTimer = setInterval(function () { goTo(current + 1); }, 5000);
-  }
+				window.carouselPrev = function () {
+					goTo(current - 1);
+				};
+				window.carouselNext = function () {
+					goTo(current + 1);
+				};
 
-  window.carouselPrev = function () { goTo(current - 1); };
-  window.carouselNext = function () { goTo(current + 1); };
-
-  resetAuto();
-})();
-</script>
-
-</body>
+				resetAuto();
+			})();
+		</script>
+	</body>
 </html>
