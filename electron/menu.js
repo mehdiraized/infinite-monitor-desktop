@@ -196,6 +196,13 @@ function buildMenu({ isDevMode, mainWindow }) {
         },
         { type: 'separator' },
         {
+          label: 'Support — Buy Me a Coffee',
+          click() {
+            shell.openExternal('https://buymeacoffee.com/farobox');
+          },
+        },
+        { type: 'separator' },
+        {
           label: 'Open Data Directory',
           click() {
             const { app: electronApp } = require('electron');

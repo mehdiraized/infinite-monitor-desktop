@@ -365,6 +365,16 @@ body {
       </svg>
       Check for Updates
     </button>
+
+    <div style="margin-top:20px">
+      <div class="section-label">Support</div>
+      <button class="btn" id="btn-donate" style="background:linear-gradient(135deg,#ff813f,#ff5f5f);border-color:transparent;color:#fff;font-weight:600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        Buy Me a Coffee
+      </button>
+    </div>
   </div>
 
   <!-- ── API Keys ── -->
@@ -623,6 +633,11 @@ body {
   // ── check updates ─────────────────────────────────────────────────────────
   document.getElementById('btn-check-updates').addEventListener('click', () => {
     window.settingsAPI.checkUpdates();
+  });
+
+  // ── donate ────────────────────────────────────────────────────────────────
+  document.getElementById('btn-donate').addEventListener('click', () => {
+    window.settingsAPI.openURL('https://buymeacoffee.com/farobox');
   });
 
   // ── init ──────────────────────────────────────────────────────────────────

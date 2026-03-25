@@ -144,6 +144,13 @@ function registerHandlers() {
   ipcMain.handle('settings:check-updates', () => {
     shell.openExternal(RELEASES_URL);
   });
+
+  ipcMain.handle('settings:open-url', (_e, url) => {
+    const allowed = ['https://buymeacoffee.com/', 'https://github.com/'];
+    if (typeof url === 'string' && allowed.some(prefix => url.startsWith(prefix))) {
+      shell.openExternal(url);
+    }
+  });
 }
 
 // ── window ────────────────────────────────────────────────────────────────────

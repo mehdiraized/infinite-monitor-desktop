@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld('settingsAPI', {
   setTheme:       (t)            => ipcRenderer.invoke('settings:set-theme', t),
   checkUpdates:   ()             => ipcRenderer.invoke('settings:check-updates'),
   getAppInfo:     ()             => ipcRenderer.invoke('settings:get-app-info'),
+  openURL:        (url)          => ipcRenderer.invoke('settings:open-url', url),
 });

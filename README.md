@@ -1,238 +1,165 @@
-# Infinite Monitor – Desktop
+<div align="center">
 
-A native desktop wrapper for the [Infinite Monitor](https://github.com/homanp/infinite-monitor)
-AI-powered dashboard builder. The dashboard UI is served from a locally-running
-Next.js server; the Electron shell only manages the window and process lifecycle.
+# Infinite Monitor
 
----
+### Your AI Dashboard, Yours to Own
 
-## Requirements
+Build powerful AI-powered dashboards that monitor crypto, markets, news, and anything else — running entirely on your machine, offline-capable, no cloud required.
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| Node.js | 22 | Required at install **and** runtime; use nvm: `nvm install 22` |
-| pnpm | 10+ | `npm install -g pnpm` |
-| git | 2.20+ | Required for submodule support |
+[![Download Latest Release](https://img.shields.io/github/v/release/mehdiraized/infinite-monitor-desktop?style=for-the-badge&label=Download&color=6366f1)](https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-a78bfa?style=for-the-badge)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20·%20Windows%20·%20Linux-27272a?style=for-the-badge)](https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest)
 
----
+<br>
 
-## Directory layout
+<img src="assets/screen-shots/main-app.jpg" alt="Infinite Monitor — Main Dashboard" width="100%" style="border-radius: 12px;" />
 
-```
-desktop/
-  web/          ← git submodule — upstream Next.js app (READ ONLY)
-  overlay/      ← all desktop-specific modifications
-  electron/     ← Electron main process & native menu
-  scripts/      ← setup, upstream, release, build helpers
-  assets/       ← app icons
-  .github/
-    workflows/
-      release.yml  ← cross-platform CI build & GitHub Release
-```
+</div>
 
 ---
 
-## First-time setup
+## Screenshots
 
-Clone the desktop repo and run:
-
-```sh
-git clone https://github.com/mehdiraized/infinite-monitor-desktop.git
-cd infinite-monitor-desktop
-nvm use 22          # ensure Node 22
-pnpm run setup      # initialise everything
-```
-
-`pnpm run setup` handles everything:
-1. Initializes the `web/` git submodule
-2. Adds the `upstream` remote inside `web/`
-3. Installs `web/` dependencies
-4. Applies the desktop overlay on top of `web/`
-
----
-
-## Development
-
-```sh
-nvm use 22
-pnpm run dev
-```
-
-What happens automatically:
-1. The desktop overlay is copied on top of `web/` (`predev` hook).
-2. Electron starts and spawns `next dev` inside `web/` on a free port (default 3847).
-3. A loading screen is shown while Next.js warms up (~5–15 s first time).
-4. Once ready, the BrowserWindow navigates to `http://127.0.0.1:{port}`.
-5. DevTools open automatically.
-
-Hot reload works normally — edit files in `overlay/src/` and the page refreshes.
+<table>
+  <tr>
+    <td width="33%"><img src="assets/screen-shots/dashboards.jpg" alt="Multiple Dashboards" /><br><sub><b>Multiple Dashboards</b> — Create unlimited dashboards and switch instantly</sub></td>
+    <td width="33%"><img src="assets/screen-shots/add-widget.jpg" alt="Add Widget" /><br><sub><b>Add Widgets</b> — AI-powered widgets with one click</sub></td>
+    <td width="33%"><img src="assets/screen-shots/models.jpg" alt="AI Models" /><br><sub><b>AI Model Selection</b> — Choose from xAI Grok, Google Gemini, OpenRouter & more</sub></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="assets/screen-shots/mcp.jpg" alt="MCP Integration" /><br><sub><b>MCP Integration</b> — Model Context Protocol for advanced AI workflows</sub></td>
+    <td width="33%"><img src="assets/screen-shots/setting.jpg" alt="Settings" /><br><sub><b>Settings</b> — Manage API keys, themes, and preferences</sub></td>
+    <td width="33%"><img src="assets/screen-shots/intro-1.jpg" alt="Onboarding" /><br><sub><b>Onboarding</b> — Guided intro to get started fast</sub></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="assets/screen-shots/intro-2.jpg" alt="Drag and Drop" /><br><sub><b>Drag & Drop Canvas</b> — Arrange widgets freely on an infinite canvas</sub></td>
+    <td width="33%"><img src="assets/screen-shots/intro-3.jpg" alt="Free AI Providers" /><br><sub><b>Free AI Providers</b> — Connect to free AI services with your own keys</sub></td>
+    <td width="33%"></td>
+  </tr>
+</table>
 
 ---
 
-## Syncing with upstream
+## Features
 
-When new commits land in the original repo:
+### 🤖 AI-Powered Widgets
+Connect to **free AI providers** — xAI Grok, Google Gemini, OpenRouter, or any custom API. Build widgets that analyze data, generate charts, track markets, and respond intelligently.
 
-```sh
-pnpm run upstream
-```
+### 🧠 Built-in AI Chat Sidebar
+Chat with AI directly inside the app. Ask questions, get analysis, and generate new widgets — all without leaving your dashboard.
 
-This single command:
-1. Resets `web/` to clean upstream state (removes overlay)
-2. Fetches and merges `upstream/main` into `web/`
-3. Stages the updated submodule pointer
-4. Re-applies the desktop overlay
+### 🔗 MCP Integration (Model Context Protocol)
+Use the **Model Context Protocol** to connect widgets to advanced AI workflows, external tools, and web search capabilities.
 
-Then commit the updated pointer:
+### ♾️ Infinite Canvas with Drag & Drop
+An unlimited canvas where you can **drag, drop, resize, and zoom** widgets freely. Pixel-perfect arrangement with smooth 60fps experience.
 
-```sh
-git commit -m "chore: update web submodule to latest upstream"
-```
+### 📊 Multiple Dashboards
+Create **unlimited dashboards** for different use cases — crypto trading, news monitoring, project tracking — and switch between them instantly.
+
+### 📡 Real-Time Data Monitoring
+Monitor **crypto prices, stock markets, RSS feeds, weather, and any custom API** — all updating live on your dashboard.
+
+### 📝 Text Blocks & Annotations
+Add **text annotations** anywhere on your canvas. Write notes, labels, or documentation right next to your widgets.
+
+### 📦 Template Gallery
+Get started fast with **pre-built dashboard templates** — Crypto Trader, Market Watch, News Feed, and more. One click to apply.
+
+### 🔌 Works Offline
+The built-in **Service Worker** caches up to **200 MB** of data for 30 days. Your dashboard keeps working even when the internet doesn't.
+
+### 🔒 Private by Design
+Everything runs **locally** on your machine. No accounts, no cloud sync, no tracking, no telemetry. Your data stays yours. Period.
+
+### 🖥️ Native Desktop Experience
+Built with Electron — **macOS traffic-light controls**, native keyboard shortcuts (`Cmd+Shift+W` to add widget, `Cmd+N` for new dashboard), system menu integration, and frameless window design.
+
+### 🌐 Cross-Platform
+Available for **macOS** (Intel & Apple Silicon), **Windows** (x64), and **Linux** (AppImage & .deb).
+
+### 🔑 API Key Management
+Manage all your AI provider keys from a dedicated **Settings panel**. Add, edit, and remove keys for OpenAI, Anthropic, Google, xAI, and custom providers.
+
+### 🔄 Auto-Updates & Diagnostics
+Built-in **update checker** and **API diagnostics** to ensure everything is working perfectly. Real-time connection status and error recovery.
+
+### 🎓 Guided Onboarding
+A beautiful **3-slide onboarding flow** introduces new users to all features. Can be replayed anytime from the Help menu.
 
 ---
 
-## Making desktop-only changes
+## Download
 
-All modifications live in `overlay/` — never edit `web/` directly.
+**[⬇ Download the latest release](https://github.com/mehdiraized/infinite-monitor-desktop/releases/latest)** — free, no sign-up required.
 
-1. Create or edit the file under `overlay/` using the same relative path as in `web/`
-2. Apply and test:
-   ```sh
-   node scripts/apply-overlay.js
-   npm run dev
-   ```
-3. Commit the change in `overlay/`
-
-To undo accidental edits in `web/`:
-```sh
-node scripts/reset-overlay.js
-```
-
----
-
-## Production build
-
-```sh
-# Current platform only
-pnpm run build
-
-# Explicit targets
-pnpm run build:mac
-pnpm run build:win
-pnpm run build:linux
-```
-
-The build pipeline (runs automatically):
-1. Generates icons
-2. Applies the desktop overlay (`prebuild` hook)
-3. Builds the Next.js app in `web/` (produces `.next/standalone/`)
-4. Assembles the standalone server into `web-build/`
-5. Packages everything with `electron-builder` → `dist/`
-
-### Output locations
-
-| Platform | Output |
+| Platform | Format |
 |----------|--------|
-| macOS | `dist/Infinite Monitor-{version}.dmg` + `.zip` (x64 & arm64) |
-| Windows | `dist/Infinite Monitor Setup {version}.exe` (x64) |
-| Linux | `dist/Infinite Monitor-{version}.AppImage` + `.deb` (x64) |
+| **macOS** (Intel & Apple Silicon) | `.dmg`, `.zip` |
+| **Windows** (x64) | `.exe` installer |
+| **Linux** (x64) | `.AppImage`, `.deb` |
+
+Or [build from source](CONTRIBUTING.md) if you prefer.
 
 ---
 
-## Releasing
+## Roadmap
 
-Releases are fully automated via GitHub Actions. To publish a new release:
+We're just getting started. Here's what's coming next:
 
-```sh
-# 1. Bump the version
-npm version patch    # or: minor | major
+### 🧠 AI Optimization — *Coming Soon*
+A **$5/month subscription** that gives all users access to optimized AI for building and improving widgets effortlessly — no API keys needed, just describe what you want.
 
-# 2. Tag and push — GitHub Actions does the rest
-pnpm run release
-```
+### 🗄️ Advanced Widgets — *Coming Soon*
+Widgets are going beyond just displaying information. Future widgets will have their own **database structures**, **API endpoints**, and the ability to **communicate with other devices** — turning your dashboard into a full-featured platform.
 
-`npm run release` creates an annotated git tag (`v{version}`) and pushes it to
-`origin`. The CI workflow (`.github/workflows/release.yml`) then:
+### 📤 Import & Export Widgets — *Coming Soon*
+**Export** your widgets and dashboards to share with others, or **import** community-created widgets with a single click.
 
-- Builds macOS, Windows, and Linux **in parallel**
-- Creates a GitHub Release with auto-generated release notes
-- Uploads all platform artifacts
+### 🏪 Widget Marketplace — *Coming Soon*
+A **marketplace** where users can **share, discover, and even sell** their widgets. Plus a curated collection of **Pro widgets** available to subscribers.
 
-> Tip: run `pnpm run release -- --dry` to simulate without creating a tag.
+### 💎 Pro Subscription Plan — *Coming Soon*
+Subscribe to unlock **Pro widgets**, access the marketplace, and use **free AI credits** for widget creation — all in one plan. The best way to get the most out of Infinite Monitor.
 
 ---
 
-## User data
+## Website
 
-The SQLite database and app preferences are stored in the platform's standard
-application data directory:
+Visit the landing page for more info and downloads:
 
-| Platform | Path |
-|----------|------|
-| macOS | `~/Library/Application Support/infinite-monitor-desktop/` |
-| Windows | `%APPDATA%\infinite-monitor-desktop\` |
-| Linux | `~/.config/infinite-monitor-desktop/` |
-
-**File → Help → Open Data Directory** in the app menu opens this folder.
+🌐 **[mehdiraized.github.io/infinite-monitor-desktop](https://mehdiraized.github.io/infinite-monitor-desktop/)**
 
 ---
 
-## Icons
+## Support the Project
 
-The icon is generated automatically during build from `assets/icon.png`.
-To regenerate it:
+If you find Infinite Monitor useful, consider supporting its development:
 
-```sh
-pnpm run generate-icons
-```
-
-electron-builder converts the 512×512 PNG to `.icns` (macOS) and `.ico` (Windows) at build time.
-To use custom artwork, replace `assets/icon.png` with a 1024×1024 PNG and re-run the command above.
+<a href="https://buymeacoffee.com/farobox" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" height="48">
+</a>
 
 ---
 
-## macOS code signing & notarisation
+## Contributing
 
-For direct distribution or App Store submission, set these environment variables
-before building (never commit credentials):
+We welcome contributions! See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full development guide covering:
 
-```sh
-export CSC_LINK="path/to/Developer_ID_Application.p12"
-export CSC_KEY_PASSWORD="your-p12-password"
-export APPLE_ID="you@example.com"
-export APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx"
-export APPLE_TEAM_ID="XXXXXXXXXX"
-```
-
-Then uncomment `notarize: true` in `electron-builder.yml` and rebuild.
+- Setting up the development environment
+- How the overlay system works
+- Building for production
+- Releasing new versions
+- Architecture overview
 
 ---
 
-## Troubleshooting
+## Credits
 
-### `web/` directory is empty after clone
-Run `npm run setup` — it initializes the git submodule.
-
-### "Node.js binary not found" (production app)
-Node.js 22+ must be installed. If you use nvm, run `nvm use 22` first.
-
-### "next binary not found" (development mode)
-Run `npm run setup` or `npm install` inside `web/` manually.
-
-### App shows a white flash before the UI loads
-This is suppressed by `backgroundColor: '#09090b'` on the BrowserWindow. If it
-still appears it is a display timing issue with no functional effect.
-
-### Port conflict
-The app picks a free port starting at 3847 and falls back to any available
-OS-assigned port. No manual port configuration is needed.
+Built on top of the amazing [Infinite Monitor](https://github.com/homanp/infinite-monitor) by [@homanp](https://github.com/homanp).
 
 ---
 
-## Architecture
+## License
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for:
-- Why the local server approach was chosen over the hosted site
-- Layer diagram
-- Security posture
-- Upstream compatibility strategy
+[MIT](LICENSE) — open source, free forever.
