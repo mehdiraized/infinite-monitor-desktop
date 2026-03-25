@@ -209,19 +209,29 @@ function startServer(port) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
 
+  // Resolve Node 22 once — used in both dev and prod branches.
+  // We always need the exact version the native modules were compiled for.
+  const nodeBin = findNodeForVersion(22);
+
+  // Prepend the Node 22 bin directory to PATH so that npm/npx are available
+  // to child processes (e.g. widget-runner's Vite builds).  When Electron is
+  // launched from the Dock, the inherited PATH is minimal (/usr/bin:/bin:…)
+  // and doesn't include nvm or Homebrew directories.
+  const nodeBinDir = nodeBin && nodeBin !== 'node' ? path.dirname(nodeBin) : null;
+  const extendedPath = nodeBinDir
+    ? `${nodeBinDir}${path.delimiter}${process.env.PATH || ''}`
+    : process.env.PATH || '';
+
   const env = {
     ...process.env,
     PORT: String(port),
     HOSTNAME: '127.0.0.1',
     DATABASE_PATH: dbPath,
     NEXT_TELEMETRY_DISABLED: '1',
+    PATH: extendedPath,
   };
 
   let cmd, args, cwd;
-
-  // Resolve Node 22 once — used in both dev and prod branches.
-  // We always need the exact version the native modules were compiled for.
-  const nodeBin = findNodeForVersion(22);
 
   if (IS_DEV) {
     // Development: run `next dev` directly in the web source tree.
