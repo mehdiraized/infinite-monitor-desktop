@@ -104,7 +104,7 @@ jobs:
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:
-          path: web/.next/cache
+          path: .web-runtime/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
@@ -169,7 +169,7 @@ jobs:
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:
-          path: web/.next/cache
+          path: .web-runtime/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
@@ -180,6 +180,8 @@ jobs:
 
       - name: Build Windows
         run: pnpm run build:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -230,7 +232,7 @@ jobs:
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:
-          path: web/.next/cache
+          path: .web-runtime/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-

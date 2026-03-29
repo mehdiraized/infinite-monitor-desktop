@@ -96,7 +96,10 @@ function linkOverlayRecursive(src, dest) {
 	} else {
 		fs.mkdirSync(path.dirname(dest), { recursive: true });
 		fs.rmSync(dest, { recursive: true, force: true });
-		if (COPY_OVERLAY_FILES.has(rel)) {
+		// Normalise to forward slashes so the check works on Windows too
+		// (path.relative returns backslashes on Windows, e.g. src\app\layout.tsx).
+		const normalizedRel = rel.split(path.sep).join("/");
+		if (COPY_OVERLAY_FILES.has(normalizedRel)) {
 			fs.copyFileSync(src, dest);
 			fs.chmodSync(dest, stat.mode);
 		} else {

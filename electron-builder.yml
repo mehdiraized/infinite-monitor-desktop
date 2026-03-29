@@ -14,8 +14,8 @@ directories:
 files:
   - electron/**/*
   - package.json
-  - "!node_modules/**/*"     # handled separately by electron-builder
-  - "!web-build/**/*"        # goes into extraResources, not the asar
+  - "!node_modules/**/*" # handled separately by electron-builder
+  - "!web-build/**/*" # goes into extraResources, not the asar
   - "!scripts/**/*"
   - "!dist/**/*"
 
@@ -37,6 +37,8 @@ compression: maximum
 mac:
   category: public.app-category.productivity
   icon: assets/icon.png
+  hardenedRuntime: true
+  gatekeeperAssess: false
   # Require notarisation for distribution; remove for local builds
   # notarize: true
   target:
