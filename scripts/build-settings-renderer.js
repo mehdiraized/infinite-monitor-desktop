@@ -28,11 +28,15 @@ async function main() {
 		sourcemap: false,
 		minify: false,
 		define: {
-			"process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
+			"process.env.NODE_ENV": JSON.stringify(
+				process.env.NODE_ENV || "production",
+			),
 		},
 	});
 
-	console.log(`\n[build-settings-renderer] Wrote ${path.relative(ROOT, OUTFILE)}`);
+	console.log(
+		`\n[build-settings-renderer] Wrote ${path.relative(ROOT, OUTFILE)}`,
+	);
 }
 
 main().catch((error) => {

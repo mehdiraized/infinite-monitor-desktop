@@ -8,9 +8,26 @@ const TABS = [
 ];
 
 const THEME_OPTIONS = [
-	{ id: "dark", label: "Dark", disabled: false, previewClass: "theme-preview-dark" },
-	{ id: "light", label: "Light", disabled: true, previewClass: "theme-preview-light", badge: "Soon" },
-	{ id: "auto", label: "System", disabled: true, previewClass: "theme-preview-auto", badge: "Soon" },
+	{
+		id: "dark",
+		label: "Dark",
+		disabled: false,
+		previewClass: "theme-preview-dark",
+	},
+	{
+		id: "light",
+		label: "Light",
+		disabled: true,
+		previewClass: "theme-preview-light",
+		badge: "Soon",
+	},
+	{
+		id: "auto",
+		label: "System",
+		disabled: true,
+		previewClass: "theme-preview-auto",
+		badge: "Soon",
+	},
 ];
 
 function InfinityIcon() {
@@ -28,7 +45,16 @@ function InfinityIcon() {
 
 function DownloadIcon() {
 	return (
-		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="13"
+			height="13"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 			<polyline points="7 10 12 15 17 10" />
 			<line x1="12" y1="15" x2="12" y2="3" />
@@ -38,7 +64,16 @@ function DownloadIcon() {
 
 function HeartIcon() {
 	return (
-		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="13"
+			height="13"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
 		</svg>
 	);
@@ -46,7 +81,15 @@ function HeartIcon() {
 
 function PlusIcon() {
 	return (
-		<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+		<svg
+			width="12"
+			height="12"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2.5"
+			strokeLinecap="round"
+		>
 			<line x1="12" y1="5" x2="12" y2="19" />
 			<line x1="5" y1="12" x2="19" y2="12" />
 		</svg>
@@ -55,7 +98,16 @@ function PlusIcon() {
 
 function EditIcon() {
 	return (
-		<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="11"
+			height="11"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
 			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
 		</svg>
@@ -64,7 +116,16 @@ function EditIcon() {
 
 function SaveIcon() {
 	return (
-		<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="11"
+			height="11"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<polyline points="20 6 9 17 4 12" />
 		</svg>
 	);
@@ -72,7 +133,16 @@ function SaveIcon() {
 
 function DeleteIcon() {
 	return (
-		<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="11"
+			height="11"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<polyline points="3 6 5 6 21 6" />
 			<path d="M19 6l-1 14H6L5 6" />
 			<path d="M10 11v6M14 11v6" />
@@ -83,7 +153,16 @@ function DeleteIcon() {
 
 function CloseIcon() {
 	return (
-		<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<svg
+			width="11"
+			height="11"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
 			<line x1="18" y1="6" x2="6" y2="18" />
 			<line x1="6" y1="6" x2="18" y2="18" />
 		</svg>
@@ -135,7 +214,12 @@ function KeyRow({ provider, secret, onSave, onDelete, pushToast }) {
 			<div className="key-actions">
 				{editing ? (
 					<>
-						<button className="btn btn-icon" type="button" title="Save" onClick={() => void handleSave()}>
+						<button
+							className="btn btn-icon"
+							type="button"
+							title="Save"
+							onClick={() => void handleSave()}
+						>
 							<SaveIcon />
 						</button>
 						<button
@@ -152,14 +236,21 @@ function KeyRow({ provider, secret, onSave, onDelete, pushToast }) {
 					</>
 				) : (
 					<>
-						<button className="btn btn-icon" type="button" title="Edit" onClick={() => setEditing(true)}>
+						<button
+							className="btn btn-icon"
+							type="button"
+							title="Edit"
+							onClick={() => setEditing(true)}
+						>
 							<EditIcon />
 						</button>
 						<button
 							className="btn btn-icon btn-danger"
 							type="button"
 							title="Delete"
-							onClick={() => void onDelete(provider).then(() => pushToast("API key removed"))}
+							onClick={() =>
+								void onDelete(provider).then(() => pushToast("API key removed"))
+							}
 						>
 							<DeleteIcon />
 						</button>
@@ -228,14 +319,20 @@ function SettingsApp() {
 	}, []);
 
 	const orderedApiKeys = useMemo(
-		() => Object.entries(apiKeys).sort(([left], [right]) => left.localeCompare(right)),
+		() =>
+			Object.entries(apiKeys).sort(([left], [right]) =>
+				left.localeCompare(right),
+			),
 		[apiKeys],
 	);
 
 	function pushToast(message) {
 		setToast(message);
 		window.clearTimeout(window.__imSettingsToastTimer__);
-		window.__imSettingsToastTimer__ = window.setTimeout(() => setToast(""), 2200);
+		window.__imSettingsToastTimer__ = window.setTimeout(
+			() => setToast(""),
+			2200,
+		);
 	}
 
 	async function saveApiKey(provider, secret) {
@@ -320,7 +417,11 @@ function SettingsApp() {
 						</div>
 					</div>
 
-					<button className="btn" type="button" onClick={() => window.settingsAPI.checkUpdates()}>
+					<button
+						className="btn"
+						type="button"
+						onClick={() => window.settingsAPI.checkUpdates()}
+					>
 						<DownloadIcon />
 						Check for Updates
 					</button>
@@ -330,7 +431,9 @@ function SettingsApp() {
 						<button
 							className="btn"
 							type="button"
-							onClick={() => window.settingsAPI.openURL("https://buymeacoffee.com/farobox")}
+							onClick={() =>
+								window.settingsAPI.openURL("https://buymeacoffee.com/farobox")
+							}
 							style={{
 								background: "linear-gradient(135deg, #ff813f, #ff5f5f)",
 								borderColor: "transparent",
@@ -410,7 +513,11 @@ function SettingsApp() {
 								>
 									Cancel
 								</button>
-								<button className="btn btn-primary" type="button" onClick={() => void saveNewKey()}>
+								<button
+									className="btn btn-primary"
+									type="button"
+									onClick={() => void saveNewKey()}
+								>
 									Save Key
 								</button>
 							</div>
@@ -418,7 +525,11 @@ function SettingsApp() {
 					) : null}
 
 					<div style={{ marginTop: 12 }}>
-						<button className="btn" type="button" onClick={() => setShowAddForm(true)}>
+						<button
+							className="btn"
+							type="button"
+							onClick={() => setShowAddForm(true)}
+						>
 							<PlusIcon />
 							Add API Key
 						</button>
@@ -439,9 +550,20 @@ function SettingsApp() {
 							>
 								<div className={`theme-preview ${option.previewClass}`}></div>
 								<div className="theme-name">{option.label}</div>
-								{option.badge ? <span className="theme-soon">{option.badge}</span> : null}
+								{option.badge ? (
+									<span className="theme-soon">{option.badge}</span>
+								) : null}
 								<div className="theme-check">
-									<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+									<svg
+										width="9"
+										height="9"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										strokeWidth="3"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
 										<polyline points="20 6 9 17 4 12" />
 									</svg>
 								</div>
