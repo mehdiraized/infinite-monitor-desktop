@@ -13,7 +13,7 @@
  *   2. Add upstream remote in web/ if missing
  *   3. Clean legacy npm node_modules from web/ (if any)
  *   4. Install all workspace dependencies from desktop/ root
- *   5. Apply desktop overlay
+ *   5. Build the prepared runtime overlay copy
  */
 
 const { execSync } = require('child_process');
@@ -117,8 +117,8 @@ execSync('pnpm install', {
   env: { ...process.env, HUSKY: '0' },
 });
 
-// ── 5. Apply overlay ─────────────────────────────────────────────────────────
-console.log('\n  [5/5] Applying desktop overlay...');
+// ── 5. Build runtime copy ────────────────────────────────────────────────────
+console.log('\n  [5/5] Building runtime overlay copy...');
 run('node scripts/apply-overlay.js');
 
 console.log('\n━━━ setup: done! ━━━');

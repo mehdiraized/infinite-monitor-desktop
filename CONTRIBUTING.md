@@ -19,6 +19,7 @@ Thank you for your interest in contributing! This guide covers everything you ne
 ```
 desktop/
   web/          ← git submodule — upstream Next.js app (READ ONLY)
+  .web-runtime/ ← git-ignored runtime copy used by dev/build
   overlay/      ← all desktop-specific modifications
   electron/     ← Electron main process & native menu
   scripts/      ← setup, upstream, release, build helpers
@@ -45,7 +46,7 @@ pnpm run setup      # initialise everything
 1. Initializes the `web/` git submodule
 2. Adds the `upstream` remote inside `web/`
 3. Installs `web/` dependencies
-4. Applies the desktop overlay on top of `web/`
+4. Builds `.web-runtime/` from `web/` and links the desktop overlay into it
 
 ---
 
@@ -57,13 +58,13 @@ pnpm run dev
 ```
 
 What happens automatically:
-1. The desktop overlay is copied on top of `web/` (`predev` hook).
-2. Electron starts and spawns `next dev` inside `web/` on a free port (default 3847).
+1. `predev` rebuilds `.web-runtime/` from the clean `web/` submodule and links in `overlay/`.
+2. Electron starts and spawns `next dev` inside `.web-runtime/` on a free port (default 3847).
 3. A loading screen is shown while Next.js warms up (~5–15 s first time).
 4. Once ready, the BrowserWindow navigates to `http://127.0.0.1:{port}`.
 5. DevTools open automatically.
 
-Hot reload works normally — edit files in `overlay/src/` and the page refreshes.
+Hot reload works normally — overlay files are linked into `.web-runtime/`, so edits in `overlay/src/` are reflected immediately.
 
 ---
 
@@ -76,10 +77,10 @@ pnpm run upstream
 ```
 
 This single command:
-1. Resets `web/` to clean upstream state (removes overlay)
+1. Resets `web/` to clean upstream state and removes `.web-runtime/`
 2. Fetches and merges `upstream/main` into `web/`
-3. Stages the updated submodule pointer
-4. Re-applies the desktop overlay
+3. Reinstalls workspace dependencies if needed
+4. Rebuilds `.web-runtime/`
 
 Then commit the updated pointer:
 
@@ -122,8 +123,8 @@ pnpm run build:linux
 
 The build pipeline (runs automatically):
 1. Generates icons
-2. Applies the desktop overlay (`prebuild` hook)
-3. Builds the Next.js app in `web/` (produces `.next/standalone/`)
+2. Rebuilds `.web-runtime/` (`prebuild` hook)
+3. Builds the Next.js app in `.web-runtime/` (produces `.next/standalone/`)
 4. Assembles the standalone server into `web-build/`
 5. Packages everything with `electron-builder` → `dist/`
 

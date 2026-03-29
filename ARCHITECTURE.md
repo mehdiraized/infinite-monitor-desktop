@@ -67,12 +67,13 @@ desktop/
 │   ├── main.js              Main process: port, server lifecycle, window
 │   └── menu.js              Application menu definition
 ├── scripts/
-│   ├── prepare-web.js       Pre-build: builds ../web and copies standalone output
+│   ├── prepare-web.js       Pre-build: builds .web-runtime and copies standalone output
 │   └── generate-icons.js   Generates placeholder PNG icon (no extra deps)
 ├── assets/
 │   ├── icon.png             App icon (replace with production art)
 │   ├── icon.icns            macOS icon – generate with electron-icon-builder
 │   └── icon.ico             Windows icon – generate with electron-icon-builder
+├── .web-runtime/            (git-ignored) Prepared dev/build copy: clean web/ + overlay symlinks.
 ├── web-build/               (git-ignored) Assembled standalone Next.js server.
 │                            Produced by `npm run prepare-web`, consumed by electron-builder.
 ├── dist/                    (git-ignored) Packaged app output from electron-builder.
@@ -90,7 +91,7 @@ desktop/
 ### Dashboard UI changes
 The BrowserWindow loads whatever the Next.js server serves at `/`. Any UI update
 in the upstream repository is automatically picked up when:
-- **Dev mode**: server restarts with `npm run dev` in `../web`.
+- **Dev mode**: `predev` refreshes `.web-runtime/`, then the server restarts with `npm run dev` there.
 - **Production build**: re-run `npm run build` in `desktop/`.
 
 No changes to the Electron shell are needed for UI changes.
@@ -104,7 +105,7 @@ Since the SQLite file persists in `app.getPath('userData')`, user data
 survives app updates automatically.
 
 ### Next.js or dependency upgrades in upstream
-Run `npm install` in `web/`, then rebuild the desktop. The standalone output
+Run `pnpm install` in `desktop/`, then rebuild the desktop. The standalone output
 is re-generated; no Electron code changes needed.
 
 ### Electron version upgrades

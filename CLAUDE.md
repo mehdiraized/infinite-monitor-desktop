@@ -55,20 +55,22 @@ pnpm run dev      # daily development
 ## How desktop modifications work (Overlay system)
 
 All desktop-specific additions and modifications live in `overlay/`.
-Before running the app, the overlay is copied on top of `web/`:
+Before running the app, a disposable runtime copy is created at `.web-runtime/`.
+It starts as a clean copy of `web/`, then each overlay file is symlinked on top
+of the matching runtime path. `web/` itself must stay clean.
 
 ```
-overlay/next.config.ts                    → web/next.config.ts
-overlay/public/sw.js                      → web/public/sw.js
-overlay/src/app/page.tsx                  → web/src/app/page.tsx
-overlay/src/app/layout.tsx                → web/src/app/layout.tsx
-overlay/src/components/offline-banner.tsx → web/src/components/offline-banner.tsx
-overlay/src/components/add-menu.tsx       → web/src/components/add-menu.tsx
-overlay/src/components/dashboard-grid.tsx → web/src/components/dashboard-grid.tsx
-overlay/src/components/onboarding.tsx     → web/src/components/onboarding.tsx
-overlay/src/instrumentation.ts            → web/src/instrumentation.ts
-overlay/src/db/index.ts                   → web/src/db/index.ts
-overlay/src/lib/widget-runner.ts          → web/src/lib/widget-runner.ts
+overlay/next.config.ts                    → .web-runtime/next.config.ts
+overlay/public/sw.js                      → .web-runtime/public/sw.js
+overlay/src/app/page.tsx                  → .web-runtime/src/app/page.tsx
+overlay/src/app/layout.tsx                → .web-runtime/src/app/layout.tsx
+overlay/src/components/offline-banner.tsx → .web-runtime/src/components/offline-banner.tsx
+overlay/src/components/add-menu.tsx       → .web-runtime/src/components/add-menu.tsx
+overlay/src/components/dashboard-grid.tsx → .web-runtime/src/components/dashboard-grid.tsx
+overlay/src/components/onboarding.tsx     → .web-runtime/src/components/onboarding.tsx
+overlay/src/instrumentation.ts            → .web-runtime/src/instrumentation.ts
+overlay/src/db/index.ts                   → .web-runtime/src/db/index.ts
+overlay/src/lib/widget-runner.ts          → .web-runtime/src/lib/widget-runner.ts
 ```
 
 The `predev` and `prebuild` pnpm hooks run `apply-overlay.js` automatically.
@@ -85,10 +87,10 @@ pnpm run setup       # init web/ submodule + pnpm install + apply overlay
 
 # ── Daily dev ─────────────────────────────────────────────────────────────
 nvm use 22           # ensure Node 22
-pnpm run dev         # apply overlay → start Electron app
+pnpm run dev         # rebuild .web-runtime → start Electron app
 
 # ── Sync with upstream when a new version is released ─────────────────────
-pnpm run upstream    # reset overlay → fetch upstream/main → pnpm install → re-apply overlay
+pnpm run upstream    # clean web/ + remove .web-runtime → fetch upstream/main → pnpm install → rebuild .web-runtime
                      # then: git commit -m "chore: update web submodule"
 
 # ── Release ───────────────────────────────────────────────────────────────
@@ -99,10 +101,10 @@ pnpm run release     # create + push git tag  →  GitHub Actions builds all pla
 ## Manual overlay commands
 
 ```bash
-# Apply overlay to web/ (done automatically by pnpm run dev)
+# Rebuild .web-runtime from clean web/ and link overlay files into it
 node scripts/apply-overlay.js
 
-# Reset web/ back to clean upstream (before git pull)
+# Remove .web-runtime and clean any legacy overlay files from web/
 node scripts/reset-overlay.js
 ```
 
@@ -111,7 +113,7 @@ node scripts/reset-overlay.js
 ## How to add a new desktop-only change
 
 1. **Create or modify the file in `overlay/`** — match the same relative path as it has in `web/`
-2. Run `node scripts/apply-overlay.js` to apply it
+2. Run `node scripts/apply-overlay.js` to rebuild `.web-runtime/`
 3. Test with `pnpm run dev`
 4. Commit the change in `overlay/` to the `desktop/` git repo
 

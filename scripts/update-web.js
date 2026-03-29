@@ -7,11 +7,10 @@
  *   pnpm run upstream
  *
  * Steps:
- *   1. Reset web/ to clean upstream (remove overlay)
- *   2. Fetch + merge upstream/main into web/
- *   3. Update parent repo's submodule pointer
- *   4. Re-install workspace dependencies (web/package.json may have changed)
- *   5. Re-apply the desktop overlay
+ *   1. Reset web/ to clean upstream and remove the runtime copy
+ *   2. Fetch + fast-forward web/ to upstream/main
+ *   3. Re-install workspace dependencies (web/package.json may have changed)
+ *   4. Rebuild the runtime overlay copy
  */
 
 const { execSync } = require('child_process');
@@ -32,16 +31,16 @@ function capture(cmd, cwd) {
 
 console.log('\n━━━ upstream: pulling latest upstream changes ━━━\n');
 
-// ── 1. Reset overlay ─────────────────────────────────────────────────────────
-console.log('  [1/5] Resetting overlay...');
+// ── 1. Reset overlay/runtime ─────────────────────────────────────────────────
+console.log('  [1/4] Resetting overlay runtime...');
 run('node scripts/reset-overlay.js');
 
 // ── 2. Pull upstream/main ────────────────────────────────────────────────────
-console.log('\n  [2/5] Fetching upstream...');
+console.log('\n  [2/4] Fetching upstream...');
 run('git fetch upstream', WEB_DIR);
 
 const beforeHash = capture('git rev-parse HEAD', WEB_DIR);
-run('git merge upstream/main --no-edit', WEB_DIR);
+run('git merge --ff-only upstream/main', WEB_DIR);
 const afterHash = capture('git rev-parse HEAD', WEB_DIR);
 
 if (beforeHash === afterHash) {
@@ -50,17 +49,12 @@ if (beforeHash === afterHash) {
   console.log(`\n  ✓  Updated: ${beforeHash.slice(0, 7)} → ${afterHash.slice(0, 7)}`);
 }
 
-// ── 3. Update submodule pointer in parent repo ───────────────────────────────
-console.log('\n  [3/5] Updating submodule pointer...');
-run('git add web');
-console.log('  ✓  Submodule pointer staged (remember to commit desktop/)');
-
-// ── 4. Re-install workspace dependencies ─────────────────────────────────────
+// ── 3. Re-install workspace dependencies ─────────────────────────────────────
 // The upstream merge may have added or updated packages in web/package.json.
 // Re-running pnpm install from the workspace root picks up all changes and
 // recompiles any native modules for the current Node version.
 // HUSKY=0 prevents husky from running in web/ (it's a read-only submodule).
-console.log('\n  [4/5] Re-installing workspace dependencies...');
+console.log('\n  [3/4] Re-installing workspace dependencies...');
 const { execSync: execS } = require('child_process');
 execS('pnpm install', {
   cwd: ROOT,
@@ -68,11 +62,13 @@ execS('pnpm install', {
   env: { ...process.env, HUSKY: '0' },
 });
 
-// ── 5. Re-apply overlay ──────────────────────────────────────────────────────
-console.log('\n  [5/5] Re-applying desktop overlay...');
+// ── 4. Rebuild runtime overlay copy ──────────────────────────────────────────
+console.log('\n  [4/4] Rebuilding desktop runtime overlay...');
 run('node scripts/apply-overlay.js');
 
 console.log('\n━━━ upstream: done! ━━━');
 console.log('  Run `pnpm run dev` to test the updated app.');
-console.log('  Then commit the updated submodule pointer:\n');
-console.log('    git commit -m "chore: update web submodule to latest upstream"\n');
+if (beforeHash !== afterHash) {
+  console.log('  Then commit the updated submodule pointer in desktop/ when ready:\n');
+  console.log('    git commit -m "chore: update web submodule to latest upstream"\n');
+}

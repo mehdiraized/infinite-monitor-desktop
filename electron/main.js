@@ -32,8 +32,9 @@ const RESOURCES_PATH = IS_DEV
   ? path.resolve(__dirname, '..')
   : process.resourcesPath;
 
-// Sibling web/ directory used during development
-const WEB_DIR = path.resolve(__dirname, '..', 'web');
+// Prepared runtime copy used during development. It is rebuilt from web/ +
+// overlay/ before dev/build and keeps the web/ submodule clean.
+const WEB_DIR = path.resolve(__dirname, '..', '.web-runtime');
 
 // Preferred port – arbitrary high number unlikely to be in use
 const PREFERRED_PORT = 3847;
@@ -70,6 +71,21 @@ function findFreePort(preferred) {
       });
     });
   });
+}
+
+function findNestedServerScript(rootDir, depth = 0) {
+  if (!fs.existsSync(rootDir) || depth > 4) return null;
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    const full = path.join(rootDir, entry.name);
+    if (entry.isFile() && entry.name === 'server.js') return full;
+    if (entry.isDirectory() && entry.name !== 'node_modules') {
+      const nested = findNestedServerScript(full, depth + 1);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -192,7 +208,7 @@ function findNodeForVersion(major) {
 
 /**
  * Spawns the Next.js server.
- *   - Development: `next dev --port {port}` in ../web
+ *   - Development: `next dev --port {port}` in ../.web-runtime
  *   - Production: `node server.js` using the bundled standalone output
  *
  * User data (SQLite DB) is always routed to app.getPath('userData').
@@ -234,14 +250,14 @@ function startServer(port) {
   let cmd, args, cwd;
 
   if (IS_DEV) {
-    // Development: run `next dev` directly in the web source tree.
+    // Development: run `next dev` directly in the prepared runtime tree.
     // Spawn `node next.js dev` explicitly instead of the .bin/next shell wrapper
     // so that we control which Node binary executes Next.js — critical because
     // better-sqlite3 and isolated-vm are compiled for Node 22 ABI.
     if (!fs.existsSync(WEB_DIR)) {
       showFatalError(
-        `Web source directory not found:\n${WEB_DIR}\n\n` +
-        'Make sure the web/ directory is present alongside desktop/.'
+        `Prepared runtime directory not found:\n${WEB_DIR}\n\n` +
+        'Run `node scripts/apply-overlay.js` or `pnpm run dev` again.'
       );
       return;
     }
@@ -283,16 +299,14 @@ function startServer(port) {
       return;
     }
 
-    // Locate server.js: flat layout (preferred) or nested under web/ (legacy pnpm workspace layout)
-    const serverScriptFlat = path.join(RESOURCES_PATH, 'web-server', 'server.js');
-    const serverScriptNested = path.join(RESOURCES_PATH, 'web-server', 'web', 'server.js');
-    const serverScript = fs.existsSync(serverScriptFlat) ? serverScriptFlat
-      : fs.existsSync(serverScriptNested) ? serverScriptNested
-      : null;
+    // Locate server.js: Next.js standalone output may be flat or nested under
+    // the traced project directory (for example `.web-runtime/server.js`).
+    const serverRoot = path.join(RESOURCES_PATH, 'web-server');
+    const serverScript = findNestedServerScript(serverRoot);
 
     if (!serverScript) {
       showFatalError(
-        `Bundled server not found at:\n${serverScriptFlat}\n\n` +
+        `Bundled server not found under:\n${serverRoot}\n\n` +
         'The app package may be corrupt. Please reinstall.'
       );
       return;

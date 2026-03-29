@@ -15,15 +15,17 @@ import {
 	execSync,
 	type ChildProcess,
 } from "node:child_process";
+import { createHash } from "node:crypto";
 import { promisify } from "node:util";
 import {
+	cpSync,
 	mkdtempSync,
 	writeFileSync,
 	mkdirSync,
 	existsSync,
 	rmSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import getPort, { portNumbers } from "get-port";
 import {
@@ -48,7 +50,7 @@ interface WidgetStatus {
 interface WidgetSandbox {
 	process: ChildProcess;
 	port: number;
-	sandboxDir: string;
+	sandboxDir?: string;
 }
 
 // ── Per-widget state ──
@@ -56,6 +58,164 @@ interface WidgetSandbox {
 const widgetSandboxes = new Map<string, WidgetSandbox>();
 const widgetStatuses = new Map<string, WidgetStatus>();
 const buildLocks = new Map<string, Promise<void>>();
+
+const DB_PATH =
+	process.env.DATABASE_PATH || join(process.cwd(), "data", "widgets.db");
+const DATA_DIR =
+	DB_PATH === ":memory:" ? join(process.cwd(), "data") : dirname(DB_PATH);
+const WIDGET_BUILD_CACHE_DIR = join(DATA_DIR, "widget-builds");
+const BASE_TEMPLATE_VERSION = 2;
+const WIDGET_CACHE_VERSION = 1;
+const REQUIRED_BASE_TEMPLATE_FILES = [
+	"index.html",
+	"vite.config.ts",
+	"tsconfig.json",
+	"tailwind.config.ts",
+	"src/lib/utils.ts",
+	"src/components/ui/alert.tsx",
+	"src/components/ui/badge.tsx",
+	"src/components/ui/button.tsx",
+	"src/components/ui/card.tsx",
+	"src/components/ui/scroll-area.tsx",
+	"src/components/ui/skeleton.tsx",
+	"src/components/ui/tabs.tsx",
+];
+const REQUIRED_BASE_TEMPLATE_PACKAGES = [
+	"vite",
+	"react",
+	"react-dom",
+	"@vitejs/plugin-react",
+	"lucide-react",
+	"date-fns",
+	"recharts",
+	"framer-motion",
+	"tailwindcss",
+];
+
+function disposeWidgetRuntime(widgetId: string): void {
+	const sb = widgetSandboxes.get(widgetId);
+	if (!sb) return;
+	try {
+		sb.process.kill();
+	} catch {
+		/* */
+	}
+	if (sb.sandboxDir) {
+		try {
+			rmSync(sb.sandboxDir, { recursive: true, force: true });
+		} catch {
+			/* */
+		}
+	}
+	widgetSandboxes.delete(widgetId);
+}
+
+function isValidBaseTemplate(dir: string): boolean {
+	if (!existsSync(join(dir, "node_modules", ".package-lock.json"))) {
+		return false;
+	}
+
+	for (const file of REQUIRED_BASE_TEMPLATE_FILES) {
+		if (!existsSync(join(dir, file))) return false;
+	}
+
+	for (const pkg of REQUIRED_BASE_TEMPLATE_PACKAGES) {
+		if (!existsSync(join(dir, "node_modules", pkg, "package.json"))) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function getWidgetSourceHash(files: Record<string, string>): string {
+	return createHash("sha256")
+		.update(String(BASE_TEMPLATE_VERSION))
+		.update("\0")
+		.update(String(WIDGET_CACHE_VERSION))
+		.update("\0")
+		.update(JSON.stringify(files))
+		.digest("hex")
+		.slice(0, 16);
+}
+
+function getWidgetCacheRoot(
+	widgetId: string,
+	files: Record<string, string>,
+): string {
+	return join(WIDGET_BUILD_CACHE_DIR, widgetId, getWidgetSourceHash(files));
+}
+
+function getCachedWidgetBuild(widgetId: string): {
+	rootDir: string;
+	distDir: string;
+} | null {
+	const files = getWidgetFiles(widgetId);
+	if (!files["src/App.tsx"]) return null;
+
+	const rootDir = getWidgetCacheRoot(widgetId, files);
+	const distDir = join(rootDir, "dist");
+	if (!existsSync(join(distDir, "index.html"))) return null;
+
+	return { rootDir, distDir };
+}
+
+function persistWidgetBuild(
+	widgetId: string,
+	files: Record<string, string>,
+	distDir: string,
+): string {
+	const widgetDir = join(WIDGET_BUILD_CACHE_DIR, widgetId);
+	const rootDir = getWidgetCacheRoot(widgetId, files);
+	const cachedDistDir = join(rootDir, "dist");
+
+	rmSync(widgetDir, { recursive: true, force: true });
+	mkdirSync(rootDir, { recursive: true });
+	cpSync(distDir, cachedDistDir, { recursive: true });
+	writeFileSync(
+		join(rootDir, "meta.json"),
+		JSON.stringify(
+			{
+				widgetId,
+				hash: getWidgetSourceHash(files),
+				cachedAt: Date.now(),
+			},
+			null,
+			2,
+		),
+	);
+
+	return cachedDistDir;
+}
+
+async function restoreWidgetFromCache(
+	widgetId: string,
+): Promise<WidgetStatus | null> {
+	const cached = getCachedWidgetBuild(widgetId);
+	if (!cached) return null;
+
+	const port = await getPort({ port: portNumbers(4100, 4999) });
+	disposeWidgetRuntime(widgetId);
+
+	try {
+		const { child, ready } = startFileServer(cached.distDir, port);
+		await ready;
+		await waitForServer(`http://127.0.0.1:${port}/`);
+
+		const status: WidgetStatus = { status: "ready", port };
+		widgetSandboxes.set(widgetId, { process: child, port });
+		widgetStatuses.set(widgetId, status);
+		console.log(`[widget-runner] Restored cached widget ${widgetId}`);
+		return status;
+	} catch (err) {
+		console.warn(
+			`[widget-runner] Cached widget restore failed for ${widgetId}; rebuilding`,
+			err,
+		);
+		rmSync(cached.rootDir, { recursive: true, force: true });
+		return null;
+	}
+}
 
 // ── Helpers ──
 
@@ -185,23 +345,24 @@ let baseTemplateDir: string | null = null;
 let baseTemplatePromise: Promise<string> | null = null;
 
 async function ensureBaseTemplate(): Promise<string> {
-	if (baseTemplateDir && existsSync(join(baseTemplateDir, "node_modules"))) {
+	if (baseTemplateDir && isValidBaseTemplate(baseTemplateDir)) {
 		return baseTemplateDir;
 	}
 	if (baseTemplatePromise) return baseTemplatePromise;
 
 	baseTemplatePromise = (async () => {
-		const dir = existsSync(
-			join(PREBAKED_DIR, "node_modules", ".package-lock.json"),
-		)
+		const dir = isValidBaseTemplate(PREBAKED_DIR)
 			? PREBAKED_DIR
 			: join(tmpdir(), "widget-base-template");
 
-		if (existsSync(join(dir, "node_modules", ".package-lock.json"))) {
+		if (isValidBaseTemplate(dir)) {
 			baseTemplateDir = dir;
 			console.log("[widget-runner] Reusing base template at", dir);
 			return dir;
 		}
+
+		rmSync(dir, { recursive: true, force: true });
+		mkdirSync(dir, { recursive: true });
 
 		console.log("[widget-runner] Installing shared base template...");
 		for (const [path, content] of Object.entries(TEMPLATES)) {
@@ -222,6 +383,12 @@ async function ensureBaseTemplate(): Promise<string> {
 		} catch {
 			console.warn(
 				"[widget-runner] Some shadcn components may have failed (non-fatal)",
+			);
+		}
+
+		if (!isValidBaseTemplate(dir)) {
+			throw new Error(
+				"Base template install is incomplete; required packages or UI files are missing",
 			);
 		}
 
@@ -469,6 +636,7 @@ async function doBuild(widgetId: string): Promise<void> {
 		port,
 		startedAt: Date.now(),
 	});
+	let sandboxDir: string | null = null;
 
 	try {
 		const files = getWidgetFiles(widgetId);
@@ -483,23 +651,10 @@ async function doBuild(widgetId: string): Promise<void> {
 			return;
 		}
 
-		const prev = widgetSandboxes.get(widgetId);
-		if (prev) {
-			try {
-				prev.process.kill();
-			} catch {
-				/* */
-			}
-			try {
-				rmSync(prev.sandboxDir, { recursive: true, force: true });
-			} catch {
-				/* */
-			}
-			widgetSandboxes.delete(widgetId);
-		}
+		disposeWidgetRuntime(widgetId);
 
 		const baseDir = await ensureBaseTemplate();
-		const sandboxDir = createSandboxDir(baseDir, files);
+		sandboxDir = createSandboxDir(baseDir, files);
 		const distDir = join(sandboxDir, "dist");
 
 		let extraDeps: string[] = [];
@@ -523,16 +678,22 @@ async function doBuild(widgetId: string): Promise<void> {
 			timeout: 60_000,
 		});
 		console.log(`[widget-runner] Widget ${widgetId} built`);
+		const cachedDistDir = persistWidgetBuild(widgetId, files, distDir);
+		try {
+			rmSync(sandboxDir, { recursive: true, force: true });
+			sandboxDir = null;
+		} catch {
+			/* */
+		}
 
 		// Start a plain Node.js HTTP file server (no secure-exec sandbox needed)
-		const { child, ready } = startFileServer(distDir, port);
+		const { child, ready } = startFileServer(cachedDistDir, port);
 		await ready;
 		await waitForServer(`http://127.0.0.1:${port}/`);
 
 		widgetSandboxes.set(widgetId, {
 			process: child,
 			port,
-			sandboxDir,
 		});
 		widgetStatuses.set(widgetId, { status: "ready", port });
 		console.log(`[widget-runner] Widget ${widgetId} serving on port ${port}`);
@@ -545,6 +706,14 @@ async function doBuild(widgetId: string): Promise<void> {
 			startedAt: Date.now(),
 			errorMessage: msg,
 		});
+	} finally {
+		if (sandboxDir) {
+			try {
+				rmSync(sandboxDir, { recursive: true, force: true });
+			} catch {
+				/* */
+			}
+		}
 	}
 }
 
@@ -570,6 +739,15 @@ export async function ensureWidget(widgetId: string): Promise<WidgetStatus> {
 	if (existing?.status === "ready" && widgetSandboxes.has(widgetId))
 		return existing;
 
+	const isStale =
+		existing?.status === "building" &&
+		existing.startedAt &&
+		Date.now() - existing.startedAt > BUILD_TIMEOUT_MS;
+	if (existing?.status === "building" && !isStale) return existing;
+
+	const restored = await restoreWidgetFromCache(widgetId);
+	if (restored) return restored;
+
 	// Allow error retry after ERROR_RETRY_MS, but don't retry earlier to prevent
 	// the iframe auto-refresh from spawning infinite failed builds.
 	const shouldRetryError =
@@ -577,12 +755,6 @@ export async function ensureWidget(widgetId: string): Promise<WidgetStatus> {
 		existing.startedAt &&
 		Date.now() - existing.startedAt > ERROR_RETRY_MS;
 	if (existing?.status === "error" && !shouldRetryError) return existing;
-
-	const isStale =
-		existing?.status === "building" &&
-		existing.startedAt &&
-		Date.now() - existing.startedAt > BUILD_TIMEOUT_MS;
-	if (existing?.status === "building" && !isStale) return existing;
 
 	const port = await getPort({ port: portNumbers(4100, 4999) });
 	const status: WidgetStatus = {
@@ -615,20 +787,7 @@ export async function rebuildWidget(widgetId: string): Promise<WidgetStatus> {
 
 export async function stopWidget(widgetId: string): Promise<void> {
 	widgetStatuses.delete(widgetId);
-	const sb = widgetSandboxes.get(widgetId);
-	if (sb) {
-		try {
-			sb.process.kill();
-		} catch {
-			/* */
-		}
-		try {
-			rmSync(sb.sandboxDir, { recursive: true, force: true });
-		} catch {
-			/* */
-		}
-		widgetSandboxes.delete(widgetId);
-	}
+	disposeWidgetRuntime(widgetId);
 }
 
 export function getWidgetStatus(widgetId: string): WidgetStatus | null {
