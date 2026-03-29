@@ -11,4 +11,9 @@ contextBridge.exposeInMainWorld('settingsAPI', {
   checkUpdates:   ()             => ipcRenderer.invoke('settings:check-updates'),
   getAppInfo:     ()             => ipcRenderer.invoke('settings:get-app-info'),
   openURL:        (url)          => ipcRenderer.invoke('settings:open-url', url),
+  onThemeChanged: (listener) => {
+    const wrapped = (_event, theme) => listener(theme);
+    ipcRenderer.on('theme-changed', wrapped);
+    return () => ipcRenderer.removeListener('theme-changed', wrapped);
+  },
 });

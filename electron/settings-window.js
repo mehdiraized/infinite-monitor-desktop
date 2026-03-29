@@ -8,9 +8,8 @@
  * (key: "infinite-monitor-settings") via mainWindow.webContents.executeJavaScript.
  */
 
-const { BrowserWindow, ipcMain, shell, app, nativeTheme } = require('electron');
+const { BrowserWindow, ipcMain, shell, app } = require('electron');
 const path = require('path');
-const fs   = require('fs');
 
 const SETTINGS_KEY  = 'infinite-monitor-settings';   // Zustand persist key
 const THEME_KEY     = 'im-desktop-theme';             // separate key for theme pref
@@ -108,6 +107,9 @@ function registerHandlers() {
     name:    app.getName(),
     version: app.getVersion(),
     description: 'AI-powered dashboard builder',
+    platform: process.platform,
+    nodeVersion: process.versions.node,
+    electronVersion: process.versions.electron,
   }));
 
   ipcMain.handle('settings:get-all', async () => {

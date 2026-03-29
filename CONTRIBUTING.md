@@ -6,11 +6,11 @@ Thank you for your interest in contributing! This guide covers everything you ne
 
 ## Requirements
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| Node.js | 22 | Required at install **and** runtime; use nvm: `nvm install 22` |
-| pnpm | 10+ | `npm install -g pnpm` |
-| git | 2.20+ | Required for submodule support |
+| Tool    | Version | Notes                                                          |
+| ------- | ------- | -------------------------------------------------------------- |
+| Node.js | 22      | Required at install **and** runtime; use nvm: `nvm install 22` |
+| pnpm    | 10+     | `npm install -g pnpm`                                          |
+| git     | 2.20+   | Required for submodule support                                 |
 
 ---
 
@@ -43,10 +43,12 @@ pnpm run setup      # initialise everything
 ```
 
 `pnpm run setup` handles everything:
+
 1. Initializes the `web/` git submodule
 2. Adds the `upstream` remote inside `web/`
 3. Installs `web/` dependencies
-4. Builds `.web-runtime/` from `web/` and links the desktop overlay into it
+4. Builds the React settings renderer bundle
+5. Builds `.web-runtime/` from `web/` and links the desktop overlay into it
 
 ---
 
@@ -58,11 +60,13 @@ pnpm run dev
 ```
 
 What happens automatically:
-1. `predev` rebuilds `.web-runtime/` from the clean `web/` submodule and links in `overlay/`.
-2. Electron starts and spawns `next dev` inside `.web-runtime/` on a free port (default 3847).
-3. A loading screen is shown while Next.js warms up (~5–15 s first time).
-4. Once ready, the BrowserWindow navigates to `http://127.0.0.1:{port}`.
-5. DevTools open automatically.
+
+1. `predev` rebuilds the React settings renderer bundle.
+2. `predev` rebuilds `.web-runtime/` from the clean `web/` submodule and links in `overlay/`.
+3. Electron starts and spawns `next dev` inside `.web-runtime/` on a free port (default 3847).
+4. A loading screen is shown while Next.js warms up (~5–15 s first time).
+5. Once ready, the BrowserWindow navigates to `http://127.0.0.1:{port}`.
+6. DevTools open automatically.
 
 Hot reload works normally — overlay files are linked into `.web-runtime/`, so edits in `overlay/src/` are reflected immediately.
 
@@ -77,10 +81,12 @@ pnpm run upstream
 ```
 
 This single command:
+
 1. Resets `web/` to clean upstream state and removes `.web-runtime/`
 2. Fetches and merges `upstream/main` into `web/`
 3. Reinstalls workspace dependencies if needed
-4. Rebuilds `.web-runtime/`
+4. Rebuilds the React settings renderer bundle
+5. Rebuilds `.web-runtime/`
 
 Then commit the updated pointer:
 
@@ -103,6 +109,7 @@ All modifications live in `overlay/` — never edit `web/` directly.
 3. Commit the change in `overlay/`
 
 To undo accidental edits in `web/`:
+
 ```sh
 node scripts/reset-overlay.js
 ```
@@ -122,19 +129,21 @@ pnpm run build:linux
 ```
 
 The build pipeline (runs automatically):
+
 1. Generates icons
-2. Rebuilds `.web-runtime/` (`prebuild` hook)
-3. Builds the Next.js app in `.web-runtime/` (produces `.next/standalone/`)
-4. Assembles the standalone server into `web-build/`
-5. Packages everything with `electron-builder` → `dist/`
+2. Rebuilds the React settings renderer bundle
+3. Rebuilds `.web-runtime/` (`prebuild` hook)
+4. Builds the Next.js app in `.web-runtime/` (produces `.next/standalone/`)
+5. Assembles the standalone server into `web-build/`
+6. Packages everything with `electron-builder` → `dist/`
 
 ### Output locations
 
-| Platform | Output |
-|----------|--------|
-| macOS | `dist/Infinite Monitor-{version}.dmg` + `.zip` (x64 & arm64) |
-| Windows | `dist/Infinite Monitor Setup {version}.exe` (x64) |
-| Linux | `dist/Infinite Monitor-{version}.AppImage` + `.deb` (x64) |
+| Platform | Output                                                       |
+| -------- | ------------------------------------------------------------ |
+| macOS    | `dist/Infinite Monitor-{version}.dmg` + `.zip` (x64 & arm64) |
+| Windows  | `dist/Infinite Monitor Setup {version}.exe` (x64)            |
+| Linux    | `dist/Infinite Monitor-{version}.AppImage` + `.deb` (x64)    |
 
 ---
 
@@ -166,11 +175,11 @@ pnpm run release
 The SQLite database and app preferences are stored in the platform's standard
 application data directory:
 
-| Platform | Path |
-|----------|------|
-| macOS | `~/Library/Application Support/infinite-monitor-desktop/` |
-| Windows | `%APPDATA%\infinite-monitor-desktop\` |
-| Linux | `~/.config/infinite-monitor-desktop/` |
+| Platform | Path                                                      |
+| -------- | --------------------------------------------------------- |
+| macOS    | `~/Library/Application Support/infinite-monitor-desktop/` |
+| Windows  | `%APPDATA%\infinite-monitor-desktop\`                     |
+| Linux    | `~/.config/infinite-monitor-desktop/`                     |
 
 **Help → Open Data Directory** in the app menu opens this folder.
 
@@ -210,19 +219,24 @@ Then uncomment `notarize: true` in `electron-builder.yml` and rebuild.
 ## Troubleshooting
 
 ### `web/` directory is empty after clone
+
 Run `pnpm run setup` — it initializes the git submodule.
 
 ### "Node.js binary not found" (production app)
+
 Node.js 22+ must be installed. If you use nvm, run `nvm use 22` first.
 
 ### "next binary not found" (development mode)
+
 Run `pnpm run setup` or `pnpm install` inside `web/` manually.
 
 ### App shows a white flash before the UI loads
+
 This is suppressed by `backgroundColor: '#09090b'` on the BrowserWindow. If it
 still appears it is a display timing issue with no functional effect.
 
 ### Port conflict
+
 The app picks a free port starting at 3847 and falls back to any available
 OS-assigned port. No manual port configuration is needed.
 
@@ -231,6 +245,7 @@ OS-assigned port. No manual port configuration is needed.
 ## Architecture
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for:
+
 - Why the local server approach was chosen over the hosted site
 - Layer diagram
 - Security posture

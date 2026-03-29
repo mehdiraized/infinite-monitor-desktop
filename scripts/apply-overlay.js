@@ -115,7 +115,9 @@ console.log("\n━━━ apply-overlay: preparing .web-runtime/ from web/ ━━
 fs.rmSync(RUNTIME_WEB_DIR, { recursive: true, force: true });
 copySourceTree(WEB_DIR, RUNTIME_WEB_DIR);
 
-console.log("\n━━━ apply-overlay: applying desktop modifications into .web-runtime/ ━━━\n");
+console.log(
+	"\n━━━ apply-overlay: applying desktop modifications into .web-runtime/ ━━━\n",
+);
 linkOverlayRecursive(OVERLAY, RUNTIME_WEB_DIR);
 
 console.log(`\n  ${count} overlay file(s) applied to .web-runtime/.\n`);
