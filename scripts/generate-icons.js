@@ -253,6 +253,6 @@ function generateIcon(size) {
 
 console.log('Generating icon…');
 const pngPath = path.join(ASSETS_DIR, 'icon.png');
-fs.writeFileSync(pngPath, generateIcon(512));
-console.log('  ✓ assets/icon.png  (512×512)');
+fs.writeFileSync(pngPath, generateIcon(1024));
+console.log('  ✓ assets/icon.png  (1024×1024)');
 console.log('    electron-builder converts to .icns/.ico at build time.\n');

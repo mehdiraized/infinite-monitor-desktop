@@ -31,6 +31,16 @@ function hasIdentity(namePart) {
 	}
 }
 
+// Installer certs are not codesigning certs — search all identities instead
+function hasAnyIdentity(namePart) {
+	try {
+		const output = run("security", ["find-identity", "-v"]);
+		return output.includes(namePart);
+	} catch (_) {
+		return false;
+	}
+}
+
 function fileExists(maybePath) {
 	return Boolean(maybePath) && fs.existsSync(path.resolve(ROOT, maybePath));
 }
@@ -108,8 +118,8 @@ if (mode === "direct") {
 		);
 	}
 	if (
-		!hasIdentity("Mac Installer Distribution") &&
-		!hasIdentity("3rd Party Mac Developer Installer")
+		!hasAnyIdentity("Mac Installer Distribution") &&
+		!hasAnyIdentity("3rd Party Mac Developer Installer")
 	) {
 		problems.push(
 			'Missing a "Mac Installer Distribution" (or legacy "3rd Party Mac Developer Installer") certificate in Keychain.',

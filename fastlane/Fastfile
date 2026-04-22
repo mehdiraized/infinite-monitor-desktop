@@ -3,8 +3,12 @@ default_platform(:mac)
 platform :mac do
   desc "Upload signed .pkg to Mac App Store via App Store Connect API"
   lane :upload_mas do
-    # Find the .pkg built by electron-builder
-    pkg_path = Dir["dist/*-mas-*.pkg"].first || Dir["dist/*.pkg"].first
+    # Prefer the exact path passed by submit-to-store.js, fall back to glob
+    project_root = File.expand_path("..", __dir__)
+    pkg_path = ENV["MAS_PKG_PATH"]
+    unless pkg_path && File.exist?(pkg_path)
+      pkg_path = Dir["#{project_root}/dist/infinite-monitor-*.pkg"].first
+    end
     UI.user_error!("No .pkg file found in dist/. Make sure build:mac:store ran successfully.") unless pkg_path
     UI.message("Uploading #{pkg_path} to App Store Connect...")
 
@@ -20,10 +24,11 @@ platform :mac do
       platform:           "osx",
       pkg:                pkg_path,
       api_key:            api_key,
-      skip_screenshots:   true,
-      skip_metadata:      true,
-      submit_for_review:  false,   # set to true to auto-submit after upload
-      force:              true
+      skip_screenshots:              true,
+      skip_metadata:                 true,
+      submit_for_review:             false,   # set to true to auto-submit after upload
+      force:                         true,
+      precheck_include_in_app_purchases: false
     )
 
     UI.success("Successfully uploaded to App Store Connect!")

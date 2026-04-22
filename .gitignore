@@ -7,3 +7,11 @@ assets/icon.ico
 # Keep assets/icon.png (generated placeholder or your real PNG)
 
 .claude/
+.env.store
+.env.store.example
+
+# Bundled Node.js binary (downloaded at build time, not tracked)
+node-bin/
+
+# Auto-generated Fastlane build reports
+fastlane/report.xml

@@ -30,20 +30,11 @@ mac:
   target:
     - target: mas
       arch:
-        - x64
-        - arm64
-    - target: pkg
-      arch:
-        - x64
         - arm64
 
 mas:
   type: distribution
   entitlements: build/entitlements.mas.plist
   entitlementsInherit: build/entitlements.mas.inherit.plist
-  provisioningProfile: ${env.MAS_PROVISIONING_PROFILE}
-
-pkg:
-  installLocation: /Applications
-  artifactName: "${productName}-${version}-mas-${arch}.${ext}"
+  provisioningProfile: /tmp/mas.provisionprofile
 

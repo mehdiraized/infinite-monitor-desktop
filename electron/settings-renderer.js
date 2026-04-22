@@ -13040,9 +13040,26 @@
     { id: "appearance", label: "Appearance" }
   ];
   var THEME_OPTIONS = [
-    { id: "dark", label: "Dark", disabled: false, previewClass: "theme-preview-dark" },
-    { id: "light", label: "Light", disabled: true, previewClass: "theme-preview-light", badge: "Soon" },
-    { id: "auto", label: "System", disabled: true, previewClass: "theme-preview-auto", badge: "Soon" }
+    {
+      id: "dark",
+      label: "Dark",
+      disabled: false,
+      previewClass: "theme-preview-dark"
+    },
+    {
+      id: "light",
+      label: "Light",
+      disabled: true,
+      previewClass: "theme-preview-light",
+      badge: "Soon"
+    },
+    {
+      id: "auto",
+      label: "System",
+      disabled: true,
+      previewClass: "theme-preview-auto",
+      badge: "Soon"
+    }
   ];
   function InfinityIcon() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("svg", { viewBox: "0 0 200 100", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -13056,43 +13073,133 @@
     ) });
   }
   function DownloadIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "7 10 12 15 17 10" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
-    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "svg",
+      {
+        width: "13",
+        height: "13",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "7 10 12 15 17 10" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
+        ]
+      }
+    );
   }
   function HeartIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "svg",
+      {
+        width: "13",
+        height: "13",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })
+      }
+    );
   }
   function PlusIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "12", y1: "5", x2: "12", y2: "19" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "5", y1: "12", x2: "19", y2: "12" })
-    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "svg",
+      {
+        width: "12",
+        height: "12",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2.5",
+        strokeLinecap: "round",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "12", y1: "5", x2: "12", y2: "19" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "5", y1: "12", x2: "19", y2: "12" })
+        ]
+      }
+    );
   }
   function EditIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: "11", height: "11", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" })
-    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "svg",
+      {
+        width: "11",
+        height: "11",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" })
+        ]
+      }
+    );
   }
   function SaveIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("svg", { width: "11", height: "11", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "20 6 9 17 4 12" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "svg",
+      {
+        width: "11",
+        height: "11",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2.5",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "20 6 9 17 4 12" })
+      }
+    );
   }
   function DeleteIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: "11", height: "11", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "3 6 5 6 21 6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M19 6l-1 14H6L5 6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M10 11v6M14 11v6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M9 6V4h6v2" })
-    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "svg",
+      {
+        width: "11",
+        height: "11",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "3 6 5 6 21 6" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M19 6l-1 14H6L5 6" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M10 11v6M14 11v6" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M9 6V4h6v2" })
+        ]
+      }
+    );
   }
   function CloseIcon() {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { width: "11", height: "11", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
-    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "svg",
+      {
+        width: "11",
+        height: "11",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+        ]
+      }
+    );
   }
   function maskKey(key) {
     if (!key)
@@ -13135,7 +13242,16 @@
         }
       ) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "key-value", children: maskKey(secret) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "key-actions", children: editing ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-icon", type: "button", title: "Save", onClick: () => void handleSave(), children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SaveIcon, {}) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            className: "btn btn-icon",
+            type: "button",
+            title: "Save",
+            onClick: () => void handleSave(),
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SaveIcon, {})
+          }
+        ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "button",
           {
@@ -13150,7 +13266,16 @@
           }
         )
       ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-icon", type: "button", title: "Edit", onClick: () => setEditing(true), children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditIcon, {}) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            className: "btn btn-icon",
+            type: "button",
+            title: "Edit",
+            onClick: () => setEditing(true),
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditIcon, {})
+          }
+        ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "button",
           {
@@ -13219,13 +13344,18 @@
       };
     }, []);
     const orderedApiKeys = (0, import_react.useMemo)(
-      () => Object.entries(apiKeys).sort(([left], [right]) => left.localeCompare(right)),
+      () => Object.entries(apiKeys).sort(
+        ([left], [right]) => left.localeCompare(right)
+      ),
       [apiKeys]
     );
     function pushToast(message) {
       setToast(message);
       window.clearTimeout(window.__imSettingsToastTimer__);
-      window.__imSettingsToastTimer__ = window.setTimeout(() => setToast(""), 2200);
+      window.__imSettingsToastTimer__ = window.setTimeout(
+        () => setToast(""),
+        2200
+      );
     }
     async function saveApiKey(provider, secret) {
       await window.settingsAPI.setApiKey(provider, secret);
@@ -13298,10 +13428,18 @@
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "info-val", children: appInfo.electronVersion })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn", type: "button", onClick: () => window.settingsAPI.checkUpdates(), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DownloadIcon, {}),
-            "Check for Updates"
-          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "button",
+            {
+              className: "btn",
+              type: "button",
+              onClick: () => window.settingsAPI.checkUpdates(),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DownloadIcon, {}),
+                "Check for Updates"
+              ]
+            }
+          ),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 20 }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "section-label", children: "Support" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -13393,13 +13531,29 @@
                   children: "Cancel"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary", type: "button", onClick: () => void saveNewKey(), children: "Save Key" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "button",
+                {
+                  className: "btn btn-primary",
+                  type: "button",
+                  onClick: () => void saveNewKey(),
+                  children: "Save Key"
+                }
+              )
             ] })
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 12 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn", type: "button", onClick: () => setShowAddForm(true), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlusIcon, {}),
-            "Add API Key"
-          ] }) })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 12 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "button",
+            {
+              className: "btn",
+              type: "button",
+              onClick: () => setShowAddForm(true),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlusIcon, {}),
+                "Add API Key"
+              ]
+            }
+          ) })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `panel${activeTab === "appearance" ? " active" : ""}`, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "section-label", children: "Color Theme" }),
@@ -13416,7 +13570,20 @@
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: `theme-preview ${option.previewClass}` }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "theme-name", children: option.label }),
                 option.badge ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "theme-soon", children: option.badge }) : null,
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "theme-check", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("svg", { width: "9", height: "9", viewBox: "0 0 24 24", fill: "none", stroke: "white", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "20 6 9 17 4 12" }) }) })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "theme-check", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "svg",
+                  {
+                    width: "9",
+                    height: "9",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "white",
+                    strokeWidth: "3",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polyline", { points: "20 6 9 17 4 12" })
+                  }
+                ) })
               ]
             },
             option.id
