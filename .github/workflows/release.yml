@@ -259,6 +259,117 @@ jobs:
             dist/*.deb
           if-no-files-found: error
 
+  # ── Mac App Store build + upload ──────────────────────────────────────────
+  build-mac-store:
+    if: >-
+      always() && (
+        startsWith(github.ref, 'refs/tags/v')
+        || (needs.auto-tag.result == 'success' && needs.auto-tag.outputs.skipped == 'false')
+      )
+    needs: [auto-tag]
+    runs-on: macos-14
+    env:
+      NODE_OPTIONS: "--max-old-space-size=8192"
+      NEXT_TELEMETRY_DISABLED: 1
+      USE_HARD_LINKS: "false"
+      PYTHON_PATH: /usr/bin/python3
+    steps:
+      - name: Checkout desktop repo + web submodule
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.auto-tag.outputs.tag || github.ref }}
+          submodules: "recursive"
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: ${{ runner.os }}-pnpm-mas-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-mas-
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .web-runtime/.next/cache
+          key: ${{ runner.os }}-nextjs-mas-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('web/src/**', 'overlay/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-mas-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-mas-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Import signing certificates & provisioning profile
+        env:
+          MAC_APP_CERT_P12_BASE64: ${{ secrets.MAC_APP_CERT_P12_BASE64 }}
+          MAC_INSTALLER_CERT_P12_BASE64: ${{ secrets.MAC_INSTALLER_CERT_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          MAS_PROVISIONING_PROFILE_BASE64: ${{ secrets.MAS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+          # Create and configure a temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import Mac App Distribution certificate
+          echo "$MAC_APP_CERT_P12_BASE64" | base64 --decode > /tmp/mac_app.p12
+          security import /tmp/mac_app.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+
+          # Import Mac Installer Distribution certificate
+          echo "$MAC_INSTALLER_CERT_P12_BASE64" | base64 --decode > /tmp/mac_installer.p12
+          security import /tmp/mac_installer.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+
+          # Add to keychain search list and allow codesign access
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Install provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$MAS_PROVISIONING_PROFILE_BASE64" | base64 --decode > /tmp/mas.provisionprofile
+          cp /tmp/mas.provisionprofile ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
+          echo "MAS_PROVISIONING_PROFILE=/tmp/mas.provisionprofile" >> $GITHUB_ENV
+
+      - name: Build for Mac App Store
+        run: pnpm run build:mac:store
+        env:
+          MAS_PROVISIONING_PROFILE: ${{ env.MAS_PROVISIONING_PROFILE }}
+          CSC_IDENTITY_AUTO_DISCOVERY: true
+
+      - name: Set up Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Upload to App Store Connect
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: bundle exec fastlane upload_mas
+
+      - name: Clean up keychain
+        if: always()
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+
   # ── Create GitHub Release with all artifacts ──────────────────────────────
   release:
     needs: [auto-tag, build-mac, build-win, build-linux]

@@ -1,0 +1,31 @@
+default_platform(:mac)
+
+platform :mac do
+  desc "Upload signed .pkg to Mac App Store via App Store Connect API"
+  lane :upload_mas do
+    # Find the .pkg built by electron-builder
+    pkg_path = Dir["dist/*-mas-*.pkg"].first || Dir["dist/*.pkg"].first
+    UI.user_error!("No .pkg file found in dist/. Make sure build:mac:store ran successfully.") unless pkg_path
+    UI.message("Uploading #{pkg_path} to App Store Connect...")
+
+    # Build the api_key hash from environment variables
+    api_key = app_store_connect_api_key(
+      key_id:        ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id:     ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content:   ENV["APP_STORE_CONNECT_API_KEY"],  # raw .p8 content (not base64)
+      is_key_content_base64: false
+    )
+
+    upload_to_app_store(
+      platform:           "osx",
+      pkg:                pkg_path,
+      api_key:            api_key,
+      skip_screenshots:   true,
+      skip_metadata:      true,
+      submit_for_review:  false,   # set to true to auto-submit after upload
+      force:              true
+    )
+
+    UI.success("Successfully uploaded to App Store Connect!")
+  end
+end
