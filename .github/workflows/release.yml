@@ -74,6 +74,9 @@ jobs:
       NODE_OPTIONS: "--max-old-space-size=8192"
       NEXT_TELEMETRY_DISABLED: 1
       USE_HARD_LINKS: "false"
+      # Use the system Python for dmg-builder instead of its bundled Python 3.14,
+      # which has a stricter plistlib that fails to parse hdiutil output.
+      PYTHON_PATH: /usr/bin/python3
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
