@@ -4,7 +4,7 @@ const https = require('https');
 const { app, dialog, shell } = require('electron');
 
 const RELEASES_API_URL = 'https://api.github.com/repos/mehdiraized/infinite-monitor-desktop/releases/latest';
-const USER_AGENT = 'infinite-monitor-desktop/1.0.0';
+const USER_AGENT = `infinite-monitor-desktop/${require('../package.json').version}`;
 
 // 24 hours in milliseconds
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;

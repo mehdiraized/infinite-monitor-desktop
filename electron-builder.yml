@@ -29,6 +29,10 @@ extraResources:
     to: web-server
     filter:
       - "**/*"
+  - from: node-bin
+    to: node-bin
+    filter:
+      - "**/*"
 
 # Compression: balances install size vs packaging speed
 compression: maximum

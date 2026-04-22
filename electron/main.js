@@ -166,8 +166,12 @@ function waitForServer(port, timeoutMs = 90_000, signal) {
  * Finds the path to a `node` binary whose major version matches `major`.
  *
  * Search order:
+ *   0. Bundled binary (node-bin/node inside app Resources) — always used in
+ *      production so end-users don't need Node.js installed.
  *   1. PATH `node` — if its major version matches, return 'node' (fastest).
+ *      Used in development when Electron is launched from the terminal.
  *   2. nvm versions directory — latest installed vMAJOR.x.x patch.
+ *      Used in development when Electron is launched from the Dock.
  *   3. Common static paths (Homebrew, system) — version-checked.
  *
  * This ensures native modules (better-sqlite3, isolated-vm, etc.) are always
@@ -189,6 +193,23 @@ function findNodeForVersion(major) {
 			return -1;
 		}
 	}
+
+	// 0. Bundled binary — mandatory in production (app is self-contained).
+	//    node-bin/node is downloaded by scripts/prepare-node.js at build time
+	//    and included in the package via extraResources → process.resourcesPath.
+	const bundledBin = path.join(
+		RESOURCES_PATH,
+		"node-bin",
+		process.platform === "win32" ? "node.exe" : "node",
+	);
+	if (fs.existsSync(bundledBin)) {
+		// In production we trust the bundled binary version matches.
+		// In dev we still version-check to catch misconfigured setups.
+		if (!IS_DEV || nodeMajor(bundledBin) === major) return bundledBin;
+	}
+
+	// In production without a bundled binary (shouldn't happen after a proper
+	// build) fall through to system search so dev workflows still work.
 
 	// 1. PATH node — used in terminal sessions with nvm active
 	if (nodeMajor("node") === major) return "node";
@@ -792,7 +813,12 @@ app.whenReady().then(async () => {
 		await waitForServer(appPort, 90_000, serverAbort.signal);
 		serverAbort = null;
 		loadApp();
-		scheduleUpdateCheck(mainWindow);
+		// Skip GitHub update check for Mac App Store builds — the App Store
+		// handles distribution and updates for those builds automatically.
+		// process.mas is true when running inside the MAS sandbox.
+		if (!process.mas) {
+			scheduleUpdateCheck(mainWindow);
+		}
 	} catch (err) {
 		serverAbort = null;
 		console.error("[main] startup failed:", err);
