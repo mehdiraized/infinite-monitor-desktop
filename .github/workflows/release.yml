@@ -58,10 +58,9 @@ jobs:
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "Created and pushed tag ${TAG}"
 
-  # ── macOS build (produces .dmg + .zip for x64 and arm64) ──────────────────
+  # ── macOS build (produces .zip for x64 and arm64) ───────────────────────
   build-mac:
-    # Use macos-14 (ARM64).  macos-13 is deprecated.  USE_HARD_LINKS=false
-    # prevents hdiutil detach race conditions during DMG creation.
+    # Use macos-14 (ARM64). DMG is skipped in CI (hdiutil sandbox restrictions).
     # Runs on tag push (manual) or after auto-tag (push to main)
     if: >-
       always() && (
@@ -73,10 +72,6 @@ jobs:
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
       NEXT_TELEMETRY_DISABLED: 1
-      USE_HARD_LINKS: "false"
-      # Use the system Python for dmg-builder instead of its bundled Python 3.14,
-      # which has a stricter plistlib that fails to parse hdiutil output.
-      PYTHON_PATH: /usr/bin/python3
     steps:
       - name: Checkout desktop repo + web submodule
         uses: actions/checkout@v4
@@ -125,9 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-builds
-          path: |
-            dist/*.dmg
-            dist/*.zip
+          path: dist/*.zip
           if-no-files-found: error
 
   # ── Windows build (produces .exe NSIS installer for x64) ──────────────────

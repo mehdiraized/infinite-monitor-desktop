@@ -44,17 +44,10 @@ mac:
   # Require notarisation for distribution; remove for local builds
   # notarize: true
   target:
-    - target: dmg
-      arch:
-        - x64
-        - arm64
     - target: zip
       arch:
         - x64
         - arm64
-
-dmg:
-  title: "Infinite Monitor ${version}"
 
 # ── Windows ───────────────────────────────────────────────────────────────────
 win:
