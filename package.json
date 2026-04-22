@@ -1,6 +1,6 @@
 {
 	"name": "infinite-monitor-desktop",
-	"version": "1.0.30",
+	"version": "1.0.31",
 	"description": "Desktop application for Infinite Monitor – AI-powered dashboard builder",
 	"main": "electron/main.js",
 	"author": {
