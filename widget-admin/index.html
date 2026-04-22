@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Widget Submissions — Infinite Monitor</title>
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+		<style>
+			:root {
+				--bg: #09090b;
+				--bg2: #18181b;
+				--bg3: #27272a;
+				--border: #3f3f46;
+				--border2: #52525b;
+				--text: #fafafa;
+				--text2: #a1a1aa;
+				--text3: #71717a;
+				--accent: #10b981;
+				--accent-bg: rgba(16, 185, 129, 0.1);
+				--red: #ef4444;
+				--red-bg: rgba(239, 68, 68, 0.1);
+				--yellow: #eab308;
+				--yellow-bg: rgba(234, 179, 8, 0.1);
+				--blue: #3b82f6;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			body {
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+				background: var(--bg);
+				color: var(--text);
+				min-height: 100vh;
+			}
+
+			/* ── Setup overlay ───────────────────────────────────────────────── */
+			#setup-overlay {
+				position: fixed;
+				inset: 0;
+				z-index: 100;
+				background: var(--bg);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.setup-card {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				padding: 2rem;
+				max-width: 480px;
+				width: 90%;
+			}
+			.setup-card h2 {
+				font-size: 1rem;
+				margin-bottom: 1.5rem;
+				letter-spacing: 0.05em;
+				text-transform: uppercase;
+			}
+			.setup-card label {
+				display: block;
+				font-size: 0.7rem;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin-bottom: 0.3rem;
+			}
+			.setup-card input {
+				width: 100%;
+				padding: 0.5rem 0.75rem;
+				background: var(--bg);
+				border: 1px solid var(--border);
+				color: var(--text);
+				font-size: 0.85rem;
+				font-family: monospace;
+				margin-bottom: 1rem;
+				outline: none;
+			}
+			.setup-card input:focus {
+				border-color: var(--border2);
+			}
+			.setup-card button {
+				width: 100%;
+				padding: 0.6rem;
+				background: var(--bg3);
+				border: 1px solid var(--border);
+				color: var(--text);
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				cursor: pointer;
+			}
+			.setup-card button:hover {
+				background: var(--border);
+			}
+			.setup-card .hint {
+				font-size: 0.7rem;
+				color: var(--text3);
+				margin-top: 1rem;
+				line-height: 1.5;
+			}
+
+			/* ── Header ──────────────────────────────────────────────────────── */
+			header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 1rem 1.5rem;
+				border-bottom: 1px solid var(--border);
+			}
+			header h1 {
+				font-size: 0.85rem;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				font-weight: 500;
+			}
+			.header-actions {
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+			}
+			.badge {
+				font-size: 0.65rem;
+				padding: 0.2rem 0.5rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+			}
+			.badge-pending {
+				background: var(--yellow-bg);
+				color: var(--yellow);
+				border: 1px solid rgba(234, 179, 8, 0.2);
+			}
+			.badge-approved {
+				background: var(--accent-bg);
+				color: var(--accent);
+				border: 1px solid rgba(16, 185, 129, 0.2);
+			}
+			.badge-rejected {
+				background: var(--red-bg);
+				color: var(--red);
+				border: 1px solid rgba(239, 68, 68, 0.2);
+			}
+
+			/* ── Filter bar ──────────────────────────────────────────────────── */
+			.filters {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.75rem 1.5rem;
+				border-bottom: 1px solid var(--border);
+			}
+			.filter-btn {
+				padding: 0.35rem 0.75rem;
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--text3);
+				cursor: pointer;
+				transition: all 0.15s;
+			}
+			.filter-btn:hover {
+				color: var(--text2);
+				border-color: var(--border2);
+			}
+			.filter-btn.active {
+				color: var(--text);
+				background: var(--bg3);
+				border-color: var(--border2);
+			}
+			.btn-sm {
+				padding: 0.35rem 0.75rem;
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				color: var(--text2);
+				cursor: pointer;
+			}
+			.btn-sm:hover {
+				color: var(--text);
+				background: var(--bg3);
+			}
+			.btn-disconnect {
+				margin-left: auto;
+			}
+
+			/* ── Submissions list ────────────────────────────────────────────── */
+			.submissions {
+				padding: 1rem 1.5rem;
+			}
+			.empty {
+				text-align: center;
+				padding: 4rem 1rem;
+				color: var(--text3);
+				font-size: 0.85rem;
+			}
+			.submission-card {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				margin-bottom: 0.75rem;
+				transition: border-color 0.15s;
+			}
+			.submission-card:hover {
+				border-color: var(--border2);
+			}
+			.card-header {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				padding: 0.75rem 1rem;
+				cursor: pointer;
+				user-select: none;
+			}
+			.card-header:hover {
+				background: rgba(255, 255, 255, 0.02);
+			}
+			.card-name {
+				font-size: 0.8rem;
+				font-weight: 500;
+				flex: 1;
+			}
+			.card-meta {
+				font-size: 0.65rem;
+				color: var(--text3);
+				display: flex;
+				gap: 0.75rem;
+				align-items: center;
+			}
+			.card-meta span {
+				white-space: nowrap;
+			}
+			.card-arrow {
+				font-size: 0.7rem;
+				color: var(--text3);
+				transition: transform 0.15s;
+			}
+			.card-arrow.open {
+				transform: rotate(90deg);
+			}
+
+			.card-body {
+				display: none;
+				border-top: 1px solid var(--border);
+				padding: 1rem;
+			}
+			.card-body.open {
+				display: block;
+			}
+
+			.card-info {
+				display: grid;
+				grid-template-columns: auto 1fr;
+				gap: 0.25rem 1rem;
+				font-size: 0.75rem;
+				margin-bottom: 1rem;
+			}
+			.card-info dt {
+				color: var(--text3);
+				text-transform: uppercase;
+				font-size: 0.65rem;
+				letter-spacing: 0.05em;
+			}
+			.card-info dd {
+				color: var(--text2);
+			}
+
+			.json-block {
+				position: relative;
+				background: var(--bg);
+				border: 1px solid var(--border);
+				padding: 0.75rem;
+				max-height: 400px;
+				overflow: auto;
+			}
+			.json-block pre {
+				font-family: "SF Mono", "Fira Code", monospace;
+				font-size: 0.7rem;
+				line-height: 1.5;
+				color: var(--text2);
+				white-space: pre-wrap;
+				word-break: break-all;
+			}
+			.json-block .copy-btn {
+				position: sticky;
+				top: 0;
+				float: right;
+				padding: 0.3rem 0.6rem;
+				font-size: 0.65rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				color: var(--text3);
+				cursor: pointer;
+			}
+			.json-block .copy-btn:hover {
+				color: var(--text);
+				border-color: var(--border2);
+			}
+			.json-block .copy-btn.copied {
+				color: var(--accent);
+				border-color: var(--accent);
+			}
+
+			.card-actions {
+				display: flex;
+				gap: 0.5rem;
+				margin-top: 1rem;
+			}
+
+			/* ── Loading ──────────────────────────────────────────────────────── */
+			.loading {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 4rem;
+				color: var(--text3);
+				font-size: 0.8rem;
+			}
+			@keyframes spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			.spinner {
+				display: inline-block;
+				width: 1rem;
+				height: 1rem;
+				border: 2px solid var(--border);
+				border-top-color: var(--text2);
+				border-radius: 50%;
+				animation: spin 0.6s linear infinite;
+				margin-right: 0.5rem;
+			}
+
+			/* ── Toast ────────────────────────────────────────────────────────── */
+			.toast {
+				position: fixed;
+				bottom: 1.5rem;
+				right: 1.5rem;
+				padding: 0.5rem 1rem;
+				font-size: 0.75rem;
+				background: var(--bg2);
+				border: 1px solid var(--accent);
+				color: var(--accent);
+				opacity: 0;
+				transition: opacity 0.3s;
+				pointer-events: none;
+				z-index: 200;
+			}
+			.toast.show {
+				opacity: 1;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- ── Setup overlay (shown until Supabase credentials are saved) ──── -->
+		<div id="setup-overlay">
+			<div class="setup-card">
+				<h2>Connect to Supabase</h2>
+				<label for="sb-url">Project URL</label>
+				<input id="sb-url" type="url" placeholder="https://xxxxx.supabase.co" />
+				<label for="sb-key">Anon Key</label>
+				<input id="sb-key" type="text" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+				<button id="sb-connect">Connect</button>
+				<div class="hint">
+					Find these in your Supabase dashboard → Settings → API.<br />
+					Credentials are saved in localStorage (this device only).
+				</div>
+			</div>
+		</div>
+
+		<!-- ── Main app ───────────────────────────────────────────────────── -->
+		<header>
+			<h1>Widget Submissions</h1>
+			<div class="header-actions">
+				<span
+					id="count-pending"
+					class="badge badge-pending"
+					style="display: none"
+				></span>
+				<span
+					id="count-total"
+					class="badge"
+					style="font-size: 0.65rem; color: var(--text3)"
+				></span>
+			</div>
+		</header>
+
+		<div class="filters">
+			<button class="filter-btn active" data-filter="all">All</button>
+			<button class="filter-btn" data-filter="pending">Pending</button>
+			<button class="filter-btn" data-filter="approved">Approved</button>
+			<button class="filter-btn" data-filter="rejected">Rejected</button>
+			<button class="btn-sm" id="btn-refresh" title="Refresh">↻ Refresh</button>
+			<button class="btn-sm btn-disconnect" id="btn-disconnect">
+				Disconnect
+			</button>
+		</div>
+
+		<div id="submissions" class="submissions">
+			<div class="loading"><span class="spinner"></span> Loading...</div>
+		</div>
+
+		<div class="toast" id="toast"></div>
+
+		<script>
+			// ── Persistence ──────────────────────────────────────────────────────
+			const STORAGE_KEY = "im-widget-admin";
+
+			function getSavedCreds() {
+				try {
+					return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+				} catch {
+					return null;
+				}
+			}
+
+			function saveCreds(url, key) {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, key }));
+			}
+
+			function clearCreds() {
+				localStorage.removeItem(STORAGE_KEY);
+			}
+
+			// ── Supabase client ──────────────────────────────────────────────────
+			let supabase = null;
+
+			function initSupabase(url, key) {
+				supabase = window.supabase.createClient(url, key);
+			}
+
+			// ── Toast ────────────────────────────────────────────────────────────
+			function showToast(msg) {
+				const t = document.getElementById("toast");
+				t.textContent = msg;
+				t.classList.add("show");
+				setTimeout(() => t.classList.remove("show"), 2000);
+			}
+
+			// ── State ────────────────────────────────────────────────────────────
+			let allSubmissions = [];
+			let currentFilter = "all";
+
+			// ── Fetch submissions ────────────────────────────────────────────────
+			async function fetchSubmissions() {
+				const container = document.getElementById("submissions");
+				container.innerHTML =
+					'<div class="loading"><span class="spinner"></span> Loading...</div>';
+
+				const { data, error } = await supabase
+					.from("widget_submissions")
+					.select("*")
+					.order("created_at", { ascending: false });
+
+				if (error) {
+					container.innerHTML = `<div class="empty">Error: ${error.message}</div>`;
+					return;
+				}
+
+				allSubmissions = data || [];
+				renderSubmissions();
+			}
+
+			// ── Render ───────────────────────────────────────────────────────────
+			function renderSubmissions() {
+				const container = document.getElementById("submissions");
+				const filtered =
+					currentFilter === "all"
+						? allSubmissions
+						: allSubmissions.filter((s) => s.status === currentFilter);
+
+				// Update counts
+				const pending = allSubmissions.filter(
+					(s) => s.status === "pending",
+				).length;
+				const countPendingEl = document.getElementById("count-pending");
+				const countTotalEl = document.getElementById("count-total");
+
+				if (pending > 0) {
+					countPendingEl.textContent = `${pending} pending`;
+					countPendingEl.style.display = "";
+				} else {
+					countPendingEl.style.display = "none";
+				}
+				countTotalEl.textContent = `${allSubmissions.length} total`;
+
+				if (filtered.length === 0) {
+					container.innerHTML = `<div class="empty">No ${currentFilter === "all" ? "" : currentFilter + " "}submissions yet.</div>`;
+					return;
+				}
+
+				container.innerHTML = filtered
+					.map((s) => {
+						const date = new Date(s.created_at).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "short",
+							day: "numeric",
+							hour: "2-digit",
+							minute: "2-digit",
+						});
+						const statusClass = `badge-${s.status}`;
+
+						// Build the registry-ready JSON (what admin copies to add to data/widgets/)
+						const registryJson = {
+							id: s.widget_id,
+							name: s.name,
+							description: s.description,
+							category: s.category,
+							author: s.author,
+							widget: s.widget_data,
+						};
+
+						return `
+      <div class="submission-card" data-id="${s.id}">
+        <div class="card-header" onclick="toggleCard('${s.id}')">
+          <span class="card-arrow" id="arrow-${s.id}">▸</span>
+          <span class="card-name">${esc(s.name)}</span>
+          <div class="card-meta">
+            <span>${esc(s.category)}</span>
+            <span>${esc(s.author)}</span>
+            <span>${date}</span>
+            <span class="badge ${statusClass}">${s.status}</span>
+          </div>
+        </div>
+        <div class="card-body" id="body-${s.id}">
+          <dl class="card-info">
+            <dt>Widget ID</dt><dd>${esc(s.widget_id)}</dd>
+            <dt>Description</dt><dd>${esc(s.description || "—")}</dd>
+            <dt>Category</dt><dd>${esc(s.category)}</dd>
+            <dt>Author</dt><dd>${esc(s.author)}</dd>
+            <dt>Code Lines</dt><dd>${(s.widget_data?.code || "").split("\\n").length}</dd>
+            <dt>Files</dt><dd>${Object.keys(s.widget_data?.files || {}).length}</dd>
+          </dl>
+          <div class="json-block">
+            <button class="copy-btn" onclick="copyJson(this, '${s.id}')">Copy JSON</button>
+            <pre id="json-${s.id}">${esc(JSON.stringify(registryJson, null, 2))}</pre>
+          </div>
+          <div class="card-actions">
+            ${
+							s.status === "pending"
+								? `
+              <button class="btn-sm" onclick="updateStatus('${s.id}', 'approved')" style="color:var(--accent);border-color:var(--accent)">✓ Approve</button>
+              <button class="btn-sm" onclick="updateStatus('${s.id}', 'rejected')" style="color:var(--red);border-color:var(--red)">✕ Reject</button>
+            `
+								: s.status === "approved"
+									? `
+              <button class="btn-sm" onclick="updateStatus('${s.id}', 'pending')">↩ Back to Pending</button>
+            `
+									: `
+              <button class="btn-sm" onclick="updateStatus('${s.id}', 'pending')">↩ Back to Pending</button>
+            `
+						}
+          </div>
+        </div>
+      </div>
+    `;
+					})
+					.join("");
+			}
+
+			function esc(str) {
+				const d = document.createElement("div");
+				d.textContent = str || "";
+				return d.innerHTML;
+			}
+
+			// ── Toggle card expand ───────────────────────────────────────────────
+			function toggleCard(id) {
+				const body = document.getElementById(`body-${id}`);
+				const arrow = document.getElementById(`arrow-${id}`);
+				body.classList.toggle("open");
+				arrow.classList.toggle("open");
+			}
+
+			// ── Copy JSON ────────────────────────────────────────────────────────
+			function copyJson(btn, id) {
+				const pre = document.getElementById(`json-${id}`);
+				navigator.clipboard.writeText(pre.textContent).then(() => {
+					btn.textContent = "Copied!";
+					btn.classList.add("copied");
+					setTimeout(() => {
+						btn.textContent = "Copy JSON";
+						btn.classList.remove("copied");
+					}, 2000);
+				});
+			}
+
+			// ── Update status ────────────────────────────────────────────────────
+			async function updateStatus(id, status) {
+				const { error } = await supabase
+					.from("widget_submissions")
+					.update({ status })
+					.eq("id", id);
+
+				if (error) {
+					showToast(`Error: ${error.message}`);
+					return;
+				}
+
+				// Update local state
+				const item = allSubmissions.find((s) => s.id === id);
+				if (item) item.status = status;
+				renderSubmissions();
+				showToast(`Marked as ${status}`);
+			}
+
+			// ── Filter buttons ───────────────────────────────────────────────────
+			document.querySelectorAll(".filter-btn").forEach((btn) => {
+				btn.addEventListener("click", () => {
+					document
+						.querySelectorAll(".filter-btn")
+						.forEach((b) => b.classList.remove("active"));
+					btn.classList.add("active");
+					currentFilter = btn.dataset.filter;
+					renderSubmissions();
+				});
+			});
+
+			// ── Refresh ──────────────────────────────────────────────────────────
+			document
+				.getElementById("btn-refresh")
+				.addEventListener("click", fetchSubmissions);
+
+			// ── Disconnect ───────────────────────────────────────────────────────
+			document
+				.getElementById("btn-disconnect")
+				.addEventListener("click", () => {
+					clearCreds();
+					location.reload();
+				});
+
+			// ── Setup flow ───────────────────────────────────────────────────────
+			const creds = getSavedCreds();
+			if (creds?.url && creds?.key) {
+				document.getElementById("setup-overlay").style.display = "none";
+				initSupabase(creds.url, creds.key);
+				fetchSubmissions();
+			} else {
+				document.getElementById("sb-connect").addEventListener("click", () => {
+					const url = document
+						.getElementById("sb-url")
+						.value.trim()
+						.replace(/\/$/, "");
+					const key = document.getElementById("sb-key").value.trim();
+					if (!url || !key) return;
+					saveCreds(url, key);
+					initSupabase(url, key);
+					document.getElementById("setup-overlay").style.display = "none";
+					fetchSubmissions();
+				});
+			}
+		</script>
+	</body>
+</html>

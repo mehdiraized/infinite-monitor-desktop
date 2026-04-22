@@ -1,0 +1,49 @@
+appId: com.infinitemonitor.desktop
+productName: Infinite Monitor
+copyright: Copyright © 2025 Infinite Monitor
+
+directories:
+  output: dist
+  buildResources: assets
+
+files:
+  - electron/**/*
+  - package.json
+  - "!node_modules/**/*"
+  - "!web-build/**/*"
+  - "!scripts/**/*"
+  - "!dist/**/*"
+  - "!docs/**/*"
+  - "!build/*.provisionprofile"
+
+extraResources:
+  - from: web-build
+    to: web-server
+    filter:
+      - "**/*"
+
+compression: maximum
+
+mac:
+  category: public.app-category.productivity
+  icon: assets/icon.png
+  target:
+    - target: mas
+      arch:
+        - x64
+        - arm64
+    - target: pkg
+      arch:
+        - x64
+        - arm64
+
+mas:
+  type: distribution
+  entitlements: build/entitlements.mas.plist
+  entitlementsInherit: build/entitlements.mas.inherit.plist
+  provisioningProfile: ${env.MAS_PROVISIONING_PROFILE}
+
+pkg:
+  installLocation: /Applications
+  artifactName: "${productName}-${version}-mas-${arch}.${ext}"
+

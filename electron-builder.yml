@@ -39,6 +39,8 @@ mac:
   icon: assets/icon.png
   hardenedRuntime: true
   gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.inherit.plist
   # Require notarisation for distribution; remove for local builds
   # notarize: true
   target:

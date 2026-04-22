@@ -1,0 +1,360 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-03-29T22:01:14.626Z",
+  "categories": [
+    {
+      "id": "crypto",
+      "name": "Crypto",
+      "icon": "trending-up",
+      "description": "Cryptocurrency prices, charts, and market data"
+    },
+    {
+      "id": "finance",
+      "name": "Finance",
+      "icon": "dollar-sign",
+      "description": "Financial data, prediction markets, and analytics"
+    },
+    {
+      "id": "geopolitics",
+      "name": "Geopolitics",
+      "icon": "globe",
+      "description": "World conflicts, geopolitical data, and news"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "icon": "bar-chart-3",
+      "description": "Data analytics and visualization tools"
+    },
+    {
+      "id": "tools",
+      "name": "Tools",
+      "icon": "wrench",
+      "description": "Utility widgets and developer tools"
+    }
+  ],
+  "widgets": [
+    {
+      "id": "multi-coin-price-ticker",
+      "name": "Multi Coin Price Ticker",
+      "description": "Multi Coin Price Ticker widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 50,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "bitcoin-24h-price-chart",
+      "name": "Bitcoin 24h Price Chart",
+      "description": "Bitcoin 24h Price Chart widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 47,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "fear-and-greed-gauge",
+      "name": "Fear and Greed Gauge",
+      "description": "Fear and Greed Gauge widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 44,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "top-crypto-movers",
+      "name": "Top Crypto Movers",
+      "description": "Top Crypto Movers widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 41,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "exchange-volume-comparison",
+      "name": "Exchange Volume Comparison",
+      "description": "Exchange Volume Comparison widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 38,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "eth-gas-tracker",
+      "name": "ETH Gas Tracker",
+      "description": "ETH Gas Tracker widget from Crypto Trader template",
+      "category": "crypto",
+      "author": "Infinite Monitor",
+      "stars": 35,
+      "tags": [
+        "crypto",
+        "crypto-trader"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "trending-prediction-markets",
+      "name": "Trending Prediction Markets",
+      "description": "Trending prediction markets by volume across Kalshi and Polymarket",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 32,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "biggest-probability-swings",
+      "name": "Biggest Probability Swings",
+      "description": "Biggest probability swings in the last 24h",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 29,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "live-kalshi-markets",
+      "name": "Live Kalshi Markets",
+      "description": "Live Kalshi event markets with prices and volume",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 26,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "polymarket-live-events",
+      "name": "Polymarket Live Events",
+      "description": "Live Polymarket event markets with prices and volume",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 23,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "top-traders-leaderboard",
+      "name": "Top Traders Leaderboard",
+      "description": "Most profitable traders on Polymarket with positions and PnL",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 20,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "real-time-news-feed",
+      "name": "Real Time News Feed",
+      "description": "Breaking news relevant to active prediction markets",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 17,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "market-position-changes",
+      "name": "Market Position Changes",
+      "description": "Large bets and notable position changes across markets",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 14,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "real-time-arbitrage-feed",
+      "name": "Real Time Arbitrage Feed",
+      "description": "Real Time Arbitrage Feed widget from Prediction Markets template",
+      "category": "finance",
+      "author": "Infinite Monitor",
+      "stars": 11,
+      "tags": [
+        "finance",
+        "prediction-markets"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "global-military-news-feed",
+      "name": "Global Military News Feed",
+      "description": "Global Military News Feed widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 8,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "dark-conflict-events-map",
+      "name": "Dark Conflict Events Map",
+      "description": "Dark Conflict Events Map widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "youtube-feed-monitor",
+      "name": "YouTube Feed Monitor",
+      "description": "YouTube Feed Monitor widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "global-conflict-deaths",
+      "name": "Global Conflict Deaths",
+      "description": "Global Conflict Deaths widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "satellite-imagery-search",
+      "name": "Satellite Imagery Search",
+      "description": "Satellite Imagery Search widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "commodity-price-tracker",
+      "name": "Commodity Price Tracker",
+      "description": "Commodity Price Tracker widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "telegram-osint-monitor",
+      "name": "Telegram OSINT Monitor",
+      "description": "Telegram OSINT Monitor widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "refugee-displacement-tracker",
+      "name": "Refugee Displacement Tracker",
+      "description": "Refugee Displacement Tracker widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    },
+    {
+      "id": "airspace-closure-monitor",
+      "name": "Airspace Closure Monitor",
+      "description": "Airspace Closure Monitor widget from World Conflicts OSINT template",
+      "category": "geopolitics",
+      "author": "Infinite Monitor",
+      "stars": 5,
+      "tags": [
+        "geopolitics",
+        "world-conflicts-osint"
+      ],
+      "createdAt": "2026-03-29",
+      "updatedAt": "2026-03-29"
+    }
+  ]
+}
