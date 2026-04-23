@@ -21,13 +21,14 @@ platform :mac do
     )
 
     upload_to_app_store(
-      platform:           "osx",
-      pkg:                pkg_path,
-      api_key:            api_key,
-      skip_screenshots:              true,
-      skip_metadata:                 true,
-      submit_for_review:             false,   # set to true to auto-submit after upload
-      force:                         true,
+      platform:                        "osx",
+      pkg:                             pkg_path,
+      api_key:                         api_key,
+      skip_screenshots:                true,
+      skip_metadata:                   true,
+      submit_for_review:               false,   # set to true to auto-submit after upload
+      force:                           true,
+      run_precheck_before_submit:      false,   # App Store Connect API key cannot run precheck
       precheck_include_in_app_purchases: false
     )
 
