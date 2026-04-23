@@ -56,5 +56,8 @@
 			"es5-ext",
 			"electron"
 		]
+	},
+	"dependencies": {
+		"electron-updater": "^6.8.3"
 	}
 }

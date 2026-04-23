@@ -20,18 +20,15 @@ platform :mac do
       is_key_content_base64: false
     )
 
-    upload_to_app_store(
-      platform:                        "osx",
+    upload_to_testflight(
       pkg:                             pkg_path,
       api_key:                         api_key,
-      skip_screenshots:                true,
-      skip_metadata:                   true,
-      submit_for_review:               false,   # set to true to auto-submit after upload
-      force:                           true,
-      run_precheck_before_submit:      false,   # App Store Connect API key cannot run precheck
-      precheck_include_in_app_purchases: false
+      skip_waiting_for_build_processing: false,  # wait so the build is ready in TestFlight
+      uses_non_exempt_encryption:      false,    # no export-regulated encryption → skips France/EAR prompt
+      distribute_external:             false,    # internal testers only; set true + add groups for external
+      notify_external_testers:         false
     )
 
-    UI.success("Successfully uploaded to App Store Connect!")
+    UI.success("Successfully uploaded to TestFlight!")
   end
 end
