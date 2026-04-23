@@ -258,6 +258,62 @@ function findNodeForVersion(major) {
 	return null;
 }
 
+/**
+ * Finds the directory containing the `npm` binary for the given Node major version.
+ * The bundled node-bin/ only contains the `node` binary (not `npm`), so we must
+ * search for npm separately — critical when Electron is launched from the Dock or
+ * any environment where the inherited PATH is minimal (/usr/bin:/bin only).
+ *
+ * @param {number} major  Required Node.js major version (e.g. 22)
+ * @param {string|null} foundNodeBin  The node binary found by findNodeForVersion
+ * @returns {string|null}
+ */
+function findNpmBinDir(major, foundNodeBin) {
+	// 1. npm is usually next to node in the same bin dir (nvm / Homebrew layout)
+	if (foundNodeBin && foundNodeBin !== "node") {
+		const npmBin = path.join(path.dirname(foundNodeBin), "npm");
+		if (fs.existsSync(npmBin)) return path.dirname(foundNodeBin);
+	}
+
+	// 2. nvm versions directory — latest installed vMAJOR.x.x patch
+	const nvmDir =
+		process.env.NVM_DIR || path.join(process.env.HOME || "", ".nvm");
+	const nvmVersionsDir = path.join(nvmDir, "versions", "node");
+	if (fs.existsSync(nvmVersionsDir)) {
+		let bestDir = null;
+		let bestPatch = -1;
+		try {
+			for (const entry of fs.readdirSync(nvmVersionsDir)) {
+				if (!entry.startsWith(`v${major}.`)) continue;
+				const patch = parseInt(
+					entry.replace(/^v/, "").split(".")[2] || "0",
+					10,
+				);
+				const npmBin = path.join(nvmVersionsDir, entry, "bin", "npm");
+				if (patch > bestPatch && fs.existsSync(npmBin)) {
+					bestPatch = patch;
+					bestDir = path.join(nvmVersionsDir, entry, "bin");
+				}
+			}
+		} catch (_) {
+			/* readdir failed */
+		}
+		if (bestDir) return bestDir;
+	}
+
+	// 3. Common static locations (Homebrew, system)
+	const staticNpmPaths = [
+		"/opt/homebrew/bin/npm",
+		"/usr/local/bin/npm",
+		"/usr/bin/npm",
+	];
+	for (const npmBin of staticNpmPaths) {
+		if (fs.existsSync(npmBin)) return path.dirname(npmBin);
+	}
+
+	return null;
+}
+
 // ── Server launch ─────────────────────────────────────────────────────────────
 
 /**
@@ -287,11 +343,46 @@ function startServer(port) {
 	// to child processes (e.g. widget-runner's Vite builds).  When Electron is
 	// launched from the Dock, the inherited PATH is minimal (/usr/bin:/bin:…)
 	// and doesn't include nvm or Homebrew directories.
+	// NOTE: The bundled node-bin/ contains only `node` (not `npm`), so we must
+	// also find the npm bin dir separately and add it to PATH.
 	const nodeBinDir =
 		nodeBin && nodeBin !== "node" ? path.dirname(nodeBin) : null;
-	const extendedPath = nodeBinDir
-		? `${nodeBinDir}${path.delimiter}${process.env.PATH || ""}`
-		: process.env.PATH || "";
+	const npmBinDir = findNpmBinDir(22, nodeBin);
+
+	// Warn the user if npm can't be found — widgets won't build without it.
+	// This is non-fatal: the dashboard and all other features still work.
+	if (!npmBinDir) {
+		console.warn("[main] npm not found — widget builds will fail");
+		// Show the warning after the window is ready so it overlays the app.
+		app.whenReady().then(() => {
+			dialog.showMessageBox(mainWindow || null, {
+				type: "warning",
+				title: "Node.js Required for Widgets",
+				message: "npm was not found on your system.",
+				detail:
+					"Widgets are built using npm. Without it, all widgets will show " +
+					"a \"Build failed\" error.\n\n" +
+					"To fix this:\n" +
+					"  1. Install Node.js 22 from https://nodejs.org\n" +
+					"  2. Restart Infinite Monitor\n\n" +
+					"The rest of the app will continue to work normally.",
+				buttons: ["OK", "Download Node.js"],
+				defaultId: 0,
+				cancelId: 0,
+			}).then(({ response }) => {
+				if (response === 1) {
+					const { shell: electronShell } = require("electron");
+					electronShell.openExternal("https://nodejs.org/en/download/");
+				}
+			}).catch(() => {});
+		});
+	}
+
+	const pathParts = [];
+	if (nodeBinDir) pathParts.push(nodeBinDir);
+	if (npmBinDir && npmBinDir !== nodeBinDir) pathParts.push(npmBinDir);
+	pathParts.push(process.env.PATH || "");
+	const extendedPath = pathParts.join(path.delimiter);
 
 	const env = {
 		...process.env,
