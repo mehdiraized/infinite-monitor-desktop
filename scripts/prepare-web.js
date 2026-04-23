@@ -387,6 +387,40 @@ console.log("\n  Resolving remaining symlinks...");
 const resolved = resolveAllSymlinks(WEB_BUILD_DIR);
 console.log(`  ${resolved} symlink(s) resolved.`);
 
+// Step 5b: relocate the standalone node_modules inside .web-runtime/
+//
+// electron-builder's createFilter() (builder-util/out/util/filter.js) contains
+// a hard-coded check:
+//
+//   if (relative === "node_modules") return false;
+//
+// This runs for ALL copy operations — including extraResources — and permanently
+// excludes any directory named "node_modules" that sits at the ROOT of the
+// extraResources "from" path (web-build/).  No filter pattern overrides it.
+//
+// server.js lives inside .web-runtime/ and resolves bare module specifiers
+// (require('next'), etc.) by walking UP the directory tree looking for
+// node_modules/.  Moving the standalone node_modules one level deeper to
+// .web-runtime/node_modules/ satisfies both constraints:
+//   • electron-builder sees relative = ".web-runtime/node_modules" (not
+//     "node_modules") → includes it.
+//   • Node.js resolution from .web-runtime/server.js finds modules in
+//     .web-runtime/node_modules/ on its first lookup. ✓
+if (isNested) {
+	const rootNodeModules = path.join(WEB_BUILD_DIR, "node_modules");
+	const serverNodeModules = path.join(
+		WEB_BUILD_DIR,
+		serverRootRelative,
+		"node_modules",
+	);
+	if (fs.existsSync(rootNodeModules) && !fs.existsSync(serverNodeModules)) {
+		fs.renameSync(rootNodeModules, serverNodeModules);
+		console.log(
+			`  relocated: node_modules → ${path.relative(ROOT, serverNodeModules)}`,
+		);
+	}
+}
+
 // Step 6: verify — fail the build if any symlinks remain
 let remaining = 0;
 function countSymlinks(dir) {
