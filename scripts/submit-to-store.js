@@ -137,6 +137,22 @@ if (!UPLOAD_ONLY) {
 }
 
 if (!BUILD_ONLY) {
+  // When running --upload-only, createMasPkg() was never called so
+  // MAS_PKG_PATH is unset. Resolve it from the expected filename for
+  // the current package version so Fastlane doesn't accidentally pick
+  // up a stale .pkg from a previous build.
+  if (!process.env.MAS_PKG_PATH) {
+    const expectedPkg = path.join(ROOT, `dist/infinite-monitor-${pkg.version}-mas-arm64.pkg`);
+    if (!fs.existsSync(expectedPkg)) {
+      console.error(
+        `✗  Expected pkg not found: ${expectedPkg}\n` +
+        `   Run the full build first:  pnpm run submit:store:build-only`
+      );
+      process.exit(1);
+    }
+    process.env.MAS_PKG_PATH = expectedPkg;
+    console.log(`  Using pkg: ${path.basename(expectedPkg)}`);
+  }
   run("bundle exec fastlane upload_mas", "Uploading to App Store Connect");
 }
 

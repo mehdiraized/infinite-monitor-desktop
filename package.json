@@ -25,7 +25,7 @@
 		"build:mac:signed": "pnpm run mac:preflight:direct && node scripts/build-settings-renderer.js && node scripts/apply-overlay.js && pnpm run generate-icons && node scripts/prepare-node.js && pnpm run prepare-web && electron-builder --config electron-builder.yml -c.mac.notarize=true --mac dmg zip --publish never",
 		"build:mac:store": "pnpm run mac:preflight:store && node scripts/build-settings-renderer.js && node scripts/apply-overlay.js && pnpm run generate-icons && node scripts/prepare-node.js && pnpm run prepare-web && electron-builder --config electron-builder.store.yml --mac mas --publish never",
 		"build:mac:store:dev": "pnpm run mac:preflight:store-dev && node scripts/build-settings-renderer.js && node scripts/apply-overlay.js && pnpm run generate-icons && node scripts/prepare-node.js && pnpm run prepare-web && electron-builder --config electron-builder.store-dev.yml --mac mas-dev --publish never",
-		"build:mac:testflight": "pnpm run build:mac:store",
+		"build:mac:testflight": "node scripts/submit-to-store.js --build-only",
 		"submit:store": "node scripts/submit-to-store.js",
 		"submit:store:build-only": "node scripts/submit-to-store.js --build-only",
 		"submit:store:upload-only": "node scripts/submit-to-store.js --upload-only",
