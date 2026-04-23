@@ -358,21 +358,26 @@ function startServer(port) {
 			dialog.showMessageBox(mainWindow || null, {
 				type: "warning",
 				title: "Node.js Required for Widgets",
-				message: "npm was not found on your system.",
+				message: "npm (Node.js) was not found on your system.",
 				detail:
 					"Widgets are built using npm. Without it, all widgets will show " +
 					"a \"Build failed\" error.\n\n" +
 					"To fix this:\n" +
-					"  1. Install Node.js 22 from https://nodejs.org\n" +
-					"  2. Restart Infinite Monitor\n\n" +
-					"The rest of the app will continue to work normally.",
-				buttons: ["OK", "Download Node.js"],
-				defaultId: 0,
+					"  1. Download and install Node.js 22 from https://nodejs.org\n" +
+					"  2. Click \"Restart App\" below — the app will relaunch and\n" +
+					"     pick up the newly installed Node.js automatically.\n\n" +
+					"The rest of the app continues to work normally.",
+				buttons: ["Dismiss", "Download Node.js", "Restart App"],
+				defaultId: 1,
 				cancelId: 0,
 			}).then(({ response }) => {
 				if (response === 1) {
-					const { shell: electronShell } = require("electron");
-					electronShell.openExternal("https://nodejs.org/en/download/");
+					// Open Node.js download page
+					shell.openExternal("https://nodejs.org/en/download/");
+				} else if (response === 2) {
+					// Relaunch the app immediately so the updated PATH is picked up
+					app.relaunch();
+					app.exit(0);
 				}
 			}).catch(() => {});
 		});
