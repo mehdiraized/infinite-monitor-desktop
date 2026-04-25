@@ -25,7 +25,7 @@
  *   node_modules/    ← bundled server-side node_modules (from standalone)
  */
 
-const { execSync } = require("child_process");
+const { execFileSync, execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -35,6 +35,13 @@ const STANDALONE_DIR = path.join(WEB_DIR, ".next", "standalone");
 const STATIC_SRC = path.join(WEB_DIR, ".next", "static");
 const PUBLIC_SRC = path.join(WEB_DIR, "public");
 const WEB_BUILD_DIR = path.join(ROOT, "web-build");
+const BUNDLED_NODE = path.join(
+	ROOT,
+	"node-bin",
+	process.platform === "win32" ? "node.exe" : "node",
+);
+const SHADCN_COMPONENTS =
+	"button card badge input table tabs scroll-area skeleton separator progress alert avatar checkbox dialog dropdown-menu label popover radio-group select sheet slider switch textarea toggle tooltip accordion collapsible command context-menu hover-card menubar navigation-menu pagination resizable sonner";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -133,18 +140,28 @@ if (!fs.existsSync(WEB_DIR)) {
 }
 
 // Step 1: build
-// Use 'npx next build' instead of 'pnpm run build' to skip the "postbuild"
-// hook (prebuild-template.mjs). That hook pre-caches widget templates by running
-// npm install + npx shadcn, which is unnecessary for the packaged desktop app
-// (the template is rebuilt at runtime) and frequently times out on CI.
+// Run Next with the bundled Node 22 binary when available. Native modules are
+// rebuilt for Node 22, so using a newer system Node during this step can break
+// page-data collection with NODE_MODULE_VERSION mismatches.
 try {
 	// Pass NEXT_BUILD=1 so that overlay/src/db/index.ts uses an in-memory
 	// database instead of a file.  This eliminates SQLITE_BUSY errors when
 	// multiple page-data workers evaluate the DB module simultaneously.
-	console.log(
-		`\n  $ npx --no-install next build  (in ${path.relative(process.cwd(), WEB_DIR)})`,
+	const nodeForBuild = fs.existsSync(BUNDLED_NODE)
+		? BUNDLED_NODE
+		: process.execPath;
+	const nextBin = path.join(
+		WEB_DIR,
+		"node_modules",
+		"next",
+		"dist",
+		"bin",
+		"next",
 	);
-	execSync("npx --no-install next build", {
+	console.log(
+		`\n  $ ${path.relative(ROOT, nodeForBuild)} ${path.relative(WEB_DIR, nextBin)} build  (in ${path.relative(process.cwd(), WEB_DIR)})`,
+	);
+	execFileSync(nodeForBuild, [nextBin, "build"], {
 		cwd: WEB_DIR,
 		stdio: "inherit",
 		env: { ...process.env, NEXT_BUILD: "1" },
@@ -377,6 +394,112 @@ console.log("\n  Creating shims for hash-suffixed externals...");
 		}
 	}
 	console.log(`  ${shimmed.size} external shim(s) created.`);
+}
+
+// Step 4b: pre-bake widget base template (required for MAS App Sandbox builds)
+// The App Sandbox blocks runtime execution of /opt/homebrew/bin/npm, so the
+// widget base template must be built at package time and bundled in the app.
+// process.execPath inside the sandboxed server is the bundled node binary,
+// so vite is invoked as `node vite.js build` instead of `npx vite build`.
+console.log("\n━━━ prepare-web: pre-baking widget base template ━━━\n");
+{
+	const templateSrc = path.join(WEB_DIR, ".cache", "widget-base-template");
+	// Validate using the same required-files check as widget-runner's isValidBaseTemplate
+	const REQUIRED_TEMPLATE_FILES = [
+		"node_modules/.package-lock.json",
+		"index.html",
+		"vite.config.ts",
+		"tsconfig.json",
+		"tailwind.config.ts",
+		"src/lib/utils.ts",
+		"src/components/ui/alert.tsx",
+		"src/components/ui/badge.tsx",
+		"src/components/ui/button.tsx",
+		"src/components/ui/card.tsx",
+		"src/components/ui/scroll-area.tsx",
+		"src/components/ui/skeleton.tsx",
+		"src/components/ui/tabs.tsx",
+		"node_modules/dompurify/package.json",
+		"node_modules/topojson-client/package.json",
+	];
+	const alreadyBuilt = REQUIRED_TEMPLATE_FILES.every((f) =>
+		fs.existsSync(path.join(templateSrc, f)),
+	);
+
+	if (!alreadyBuilt) {
+		console.log(
+			"  Running npm install for widget template (first time — may take a few minutes)...",
+		);
+		try {
+			execSync("node scripts/prebuild-template.mjs", {
+				cwd: WEB_DIR,
+				stdio: "inherit",
+				timeout: 360_000,
+			});
+		} catch (err) {
+			console.warn(
+				"  WARNING: Widget template pre-bake failed:",
+				err.message.split("\n")[0],
+			);
+			console.warn(
+				"  Widgets requiring npm may not work in the sandboxed (MAS) build.",
+			);
+		}
+	} else {
+		console.log("  Widget base template already cached, skipping npm install.");
+	}
+
+	const missingUiFiles = REQUIRED_TEMPLATE_FILES.filter((file) =>
+		file.startsWith("src/components/ui/"),
+	).filter((file) => !fs.existsSync(path.join(templateSrc, file)));
+	if (missingUiFiles.length > 0) {
+		console.log(
+			`  Installing missing widget UI components (${missingUiFiles.length} file(s))...`,
+		);
+		execSync(`npx shadcn@latest add --yes ${SHADCN_COMPONENTS}`, {
+			cwd: templateSrc,
+			stdio: "inherit",
+			timeout: 120_000,
+		});
+	}
+
+	const bundledExtraDeps = ["dompurify", "topojson-client"];
+	const missingBundledExtraDeps = bundledExtraDeps.filter(
+		(pkg) =>
+			!fs.existsSync(
+				path.join(templateSrc, "node_modules", pkg, "package.json"),
+			),
+	);
+	if (missingBundledExtraDeps.length > 0) {
+		console.log(
+			`  Installing bundled widget dependencies: ${missingBundledExtraDeps.join(", ")}`,
+		);
+		execSync(
+			`npm install --include=dev --no-save ${missingBundledExtraDeps.join(" ")}`,
+			{
+				cwd: templateSrc,
+				stdio: "inherit",
+				timeout: 120_000,
+			},
+		);
+	}
+
+	if (
+		fs.existsSync(path.join(templateSrc, "node_modules", ".package-lock.json"))
+	) {
+		const serverRelDir = isNested
+			? path.join(WEB_BUILD_DIR, serverRootRelative)
+			: WEB_BUILD_DIR;
+		const templateDest = path.join(serverRelDir, ".cache", "widget-base-template");
+		copyDir(templateSrc, templateDest);
+		console.log(
+			`  bundled widget template → ${path.relative(ROOT, templateDest)}`,
+		);
+	} else {
+		console.warn(
+			"  Skipping widget template bundle (template not available).",
+		);
+	}
 }
 
 // Step 5: resolve ALL remaining symlinks (safety net)

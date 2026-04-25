@@ -347,39 +347,42 @@ function startServer(port) {
 	// also find the npm bin dir separately and add it to PATH.
 	const nodeBinDir =
 		nodeBin && nodeBin !== "node" ? path.dirname(nodeBin) : null;
-	const npmBinDir = findNpmBinDir(22, nodeBin);
+	const npmBinDir = IS_DEV ? findNpmBinDir(22, nodeBin) : null;
 
 	// Warn the user if npm can't be found — widgets won't build without it.
 	// This is non-fatal: the dashboard and all other features still work.
-	if (!npmBinDir) {
+	if (IS_DEV && !npmBinDir) {
 		console.warn("[main] npm not found — widget builds will fail");
 		// Show the warning after the window is ready so it overlays the app.
 		app.whenReady().then(() => {
-			dialog.showMessageBox(mainWindow || null, {
-				type: "warning",
-				title: "Node.js Required for Widgets",
-				message: "npm (Node.js) was not found on your system.",
-				detail:
-					"Widgets are built using npm. Without it, all widgets will show " +
-					"a \"Build failed\" error.\n\n" +
-					"To fix this:\n" +
-					"  1. Download and install Node.js 22 from https://nodejs.org\n" +
-					"  2. Click \"Restart App\" below — the app will relaunch and\n" +
-					"     pick up the newly installed Node.js automatically.\n\n" +
-					"The rest of the app continues to work normally.",
-				buttons: ["Dismiss", "Download Node.js", "Restart App"],
-				defaultId: 1,
-				cancelId: 0,
-			}).then(({ response }) => {
-				if (response === 1) {
-					// Open Node.js download page
-					shell.openExternal("https://nodejs.org/en/download/");
-				} else if (response === 2) {
-					// Relaunch the app immediately so the updated PATH is picked up
-					app.relaunch();
-					app.exit(0);
-				}
-			}).catch(() => {});
+			dialog
+				.showMessageBox(mainWindow || null, {
+					type: "warning",
+					title: "Node.js Required for Widgets",
+					message: "npm (Node.js) was not found on your system.",
+					detail:
+						"Widgets are built using npm. Without it, all widgets will show " +
+						'a "Build failed" error.\n\n' +
+						"To fix this:\n" +
+						"  1. Download and install Node.js 22 from https://nodejs.org\n" +
+						'  2. Click "Restart App" below — the app will relaunch and\n' +
+						"     pick up the newly installed Node.js automatically.\n\n" +
+						"The rest of the app continues to work normally.",
+					buttons: ["Dismiss", "Download Node.js", "Restart App"],
+					defaultId: 1,
+					cancelId: 0,
+				})
+				.then(({ response }) => {
+					if (response === 1) {
+						// Open Node.js download page
+						shell.openExternal("https://nodejs.org/en/download/");
+					} else if (response === 2) {
+						// Relaunch the app immediately so the updated PATH is picked up
+						app.relaunch();
+						app.exit(0);
+					}
+				})
+				.catch(() => {});
 		});
 	}
 

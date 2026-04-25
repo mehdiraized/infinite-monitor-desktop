@@ -12,7 +12,7 @@
 import {
 	spawn,
 	exec as execCb,
-	execSync,
+	execFile as execFileCb,
 	type ChildProcess,
 } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -24,6 +24,7 @@ import {
 	mkdirSync,
 	existsSync,
 	rmSync,
+	symlinkSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -36,7 +37,9 @@ import {
 } from "@/db/widgets";
 
 const execAsync = promisify(execCb);
+const execFileAsync = promisify(execFileCb);
 const TEMPLATE_INSTALL_CMD = "npm install --include=dev";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // ── Types ──
 
@@ -65,7 +68,7 @@ const DB_PATH =
 const DATA_DIR =
 	DB_PATH === ":memory:" ? join(process.cwd(), "data") : dirname(DB_PATH);
 const WIDGET_BUILD_CACHE_DIR = join(DATA_DIR, "widget-builds");
-const BASE_TEMPLATE_VERSION = 2;
+const BASE_TEMPLATE_VERSION = 4;
 const WIDGET_CACHE_VERSION = 1;
 const REQUIRED_BASE_TEMPLATE_FILES = [
 	"index.html",
@@ -91,6 +94,8 @@ const REQUIRED_BASE_TEMPLATE_PACKAGES = [
 	"recharts",
 	"framer-motion",
 	"tailwindcss",
+	"dompurify",
+	"topojson-client",
 ];
 
 function disposeWidgetRuntime(widgetId: string): void {
@@ -320,6 +325,8 @@ const TEMPLATES: Record<string, string> = {
 				"maplibre-gl": "^4.7.0",
 				"framer-motion": "^11.0.0",
 				"@tanstack/react-query": "^5.0.0",
+				dompurify: "^3.2.6",
+				"topojson-client": "^3.1.0",
 			},
 			devDependencies: {
 				"@vitejs/plugin-react": "^4.3.1",
@@ -386,6 +393,12 @@ async function ensureBaseTemplate(): Promise<string> {
 
 		rmSync(dir, { recursive: true, force: true });
 		mkdirSync(dir, { recursive: true });
+
+		if (IS_PRODUCTION) {
+			throw new Error(
+				"Bundled widget template is missing or incomplete. Rebuild the desktop app so widgets can run inside the App Sandbox without external npm.",
+			);
+		}
 
 		console.log("[widget-runner] Installing shared base template...");
 		for (const [path, content] of Object.entries(TEMPLATES)) {
@@ -536,21 +549,12 @@ function createSandboxDir(
 	]) {
 		const src = join(baseDir, name);
 		if (existsSync(src)) {
-			try {
-				execSync(`cp "${src}" "${join(dir, name)}"`, { stdio: "pipe" });
-			} catch {
-				/* */
-			}
+			cpSync(src, join(dir, name), { recursive: true });
 		}
 	}
 
-	execSync(
-		`ln -s "${join(baseDir, "node_modules")}" "${join(dir, "node_modules")}"`,
-		{ stdio: "pipe" },
-	);
-	execSync(`cp -r "${join(baseDir, "src")}" "${join(dir, "src")}"`, {
-		stdio: "pipe",
-	});
+	symlinkSync(join(baseDir, "node_modules"), join(dir, "node_modules"), "dir");
+	cpSync(join(baseDir, "src"), join(dir, "src"), { recursive: true });
 
 	for (const [filePath, content] of Object.entries(files)) {
 		if (filePath === "deps.json") continue;
@@ -689,17 +693,59 @@ async function doBuild(widgetId: string): Promise<void> {
 			}
 		}
 		if (extraDeps.length > 0) {
-			await execAsync(`npm install --no-save ${extraDeps.join(" ")}`, {
-				cwd: sandboxDir,
-				timeout: 60_000,
+			const activeSandboxDir = sandboxDir;
+			const missingDeps = extraDeps.filter((dep) => {
+				if (dep.startsWith("@types/")) return false;
+				const packageName = dep.startsWith("@")
+					? dep.split("/").slice(0, 2).join("/")
+					: dep.split("/")[0];
+				return !existsSync(join(activeSandboxDir, "node_modules", packageName));
 			});
+			if (missingDeps.length === 0) {
+				console.log(
+					`[widget-runner] Extra dependencies already bundled for ${widgetId}`,
+				);
+			} else if (IS_PRODUCTION) {
+				throw new Error(
+					`Widget requires dependencies that are not bundled in the desktop app: ${missingDeps.join(", ")}`,
+				);
+			} else {
+				// Find npm-cli.js relative to the node binary so this works inside the
+				// App Sandbox where /opt/homebrew/bin/npm is blocked.
+				const nodeDir = dirname(process.execPath);
+				const npmCli = join(
+					nodeDir,
+					"..",
+					"lib",
+					"node_modules",
+					"npm",
+					"bin",
+					"npm-cli.js",
+				);
+				if (existsSync(npmCli)) {
+					await execFileAsync(
+						process.execPath,
+						[npmCli, "install", "--no-save", ...missingDeps],
+						{ cwd: sandboxDir, timeout: 60_000 },
+					);
+				} else {
+					await execAsync(`npm install --no-save ${missingDeps.join(" ")}`, {
+						cwd: sandboxDir,
+						timeout: 60_000,
+					});
+				}
+			}
 		}
 
 		console.log(`[widget-runner] Building widget ${widgetId}...`);
-		await execAsync(`npx vite build --outDir "${distDir}"`, {
-			cwd: sandboxDir,
-			timeout: 60_000,
-		});
+		// Use process.execPath (the bundled node binary) so vite runs inside the
+		// App Sandbox without needing /opt/homebrew/bin/npx from outside the bundle.
+		const viteBin = join(sandboxDir, "node_modules", "vite", "bin", "vite.js");
+		await execFileAsync(
+			process.execPath,
+			[viteBin, "build", "--outDir", distDir],
+			{ cwd: sandboxDir, timeout: 60_000 },
+		);
 		console.log(`[widget-runner] Widget ${widgetId} built`);
 		const cachedDistDir = persistWidgetBuild(widgetId, files, distDir);
 		try {
